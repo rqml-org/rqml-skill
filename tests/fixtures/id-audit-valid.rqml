@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rqml xmlns="https://rqml.org/schema/2.1.0"
+      version="2.1.0"
+      docId="FIXTURE-ID-AUDIT-VALID"
+      status="draft">
+  <meta>
+    <title>ID Audit Valid</title>
+    <system>fixture-skill</system>
+  </meta>
+  <requirements>
+    <req id="REQ-ID-001" type="FR" title="Valid id" status="approved" priority="must">
+      <statement>The fixture SHALL contain valid identifiers only.</statement>
+      <acceptance>
+        <criterion id="CRIT-ID-001">
+          <then>The audit succeeds when no malformed or duplicate ids exist.</then>
+        </criterion>
+      </acceptance>
+    </req>
+  </requirements>
+</rqml>

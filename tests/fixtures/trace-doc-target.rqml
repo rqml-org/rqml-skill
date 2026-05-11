@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rqml xmlns="https://rqml.org/schema/2.1.0"
+      version="2.1.0"
+      docId="FIXTURE-TRACE-DOC-TARGET"
+      status="draft">
+  <meta>
+    <title>Trace Doc Target</title>
+    <system>fixture-skill</system>
+  </meta>
+  <requirements>
+    <req id="REQ-DOC-001" type="FR" title="Target requirement" status="approved" priority="must">
+      <statement>The target SHALL exist for cross-document trace tests.</statement>
+      <acceptance>
+        <criterion id="CRIT-DOC-001">
+          <then>The document contains the referenced requirement id.</then>
+        </criterion>
+      </acceptance>
+    </req>
+  </requirements>
+</rqml>

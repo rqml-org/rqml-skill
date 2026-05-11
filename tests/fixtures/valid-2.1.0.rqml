@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rqml xmlns="https://rqml.org/schema/2.1.0"
+      version="2.1.0"
+      docId="FIXTURE-VALID-210"
+      status="draft">
+  <meta>
+    <title>Valid Fixture 2.1.0</title>
+    <system>fixture-skill</system>
+    <summary>Minimal valid RQML fixture for offline validation tests.</summary>
+  </meta>
+  <requirements>
+    <reqPackage id="PKG-FIXTURE" title="Fixture package">
+      <req id="REQ-FIXTURE-001" type="FR" title="Fixture requirement" status="approved" priority="must">
+        <statement>The fixture SHALL satisfy the bundled 2.1.0 schema.</statement>
+        <acceptance>
+          <criterion id="CRIT-FIXTURE-001">
+            <given>A bundled 2.1.0 schema</given>
+            <when>The fixture is validated</when>
+            <then>The document is structurally valid.</then>
+          </criterion>
+        </acceptance>
+      </req>
+    </reqPackage>
+  </requirements>
+</rqml>

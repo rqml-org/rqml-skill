@@ -1,0 +1,3 @@
+# Optional accelerators for validation backends
+lxml
+xmlschema

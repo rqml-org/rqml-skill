@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rqml xmlns="https://rqml.org/schema/2.1.0"
+      version="2.1.0"
+      docId="FIXTURE-TRACE-VALID"
+      status="draft">
+  <meta>
+    <title>Trace Valid Doc Target</title>
+    <system>fixture-skill</system>
+  </meta>
+  <requirements>
+    <req id="REQ-TRACE-001" type="FR" title="Trace fixture" status="approved" priority="must">
+      <statement>The fixture SHALL contain a resolvable doc locator.</statement>
+      <acceptance>
+        <criterion id="CRIT-TRACE-001">
+          <then>The trace target resolves successfully.</then>
+        </criterion>
+      </acceptance>
+    </req>
+  </requirements>
+  <trace>
+    <edge id="TR-TRACE-VALID" type="dependsOn">
+      <from><locator><local id="REQ-TRACE-001"/></locator></from>
+      <to><locator><doc uri="trace-doc-target.rqml" id="REQ-DOC-001"/></locator></to>
+    </edge>
+  </trace>
+</rqml>

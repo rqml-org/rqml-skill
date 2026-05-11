@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rqml xmlns="https://rqml.org/schema/2.1.0" version="2.1.0" docId="FIXTURE-PERF" status="draft">
+  <meta>
+    <title>Performance Fixture</title>
+    <system>fixture-skill</system>
+  </meta>
+  <requirements>
+    <reqPackage id="PKG-PERF" title="Performance package">
+      <req id="REQ-PERF-001" type="FR" title="Performance requirement 1" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 1.</statement>
+        <acceptance><criterion id="CRIT-PERF-001"><then>The row 1 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-002" type="FR" title="Performance requirement 2" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 2.</statement>
+        <acceptance><criterion id="CRIT-PERF-002"><then>The row 2 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-003" type="FR" title="Performance requirement 3" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 3.</statement>
+        <acceptance><criterion id="CRIT-PERF-003"><then>The row 3 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-004" type="FR" title="Performance requirement 4" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 4.</statement>
+        <acceptance><criterion id="CRIT-PERF-004"><then>The row 4 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-005" type="FR" title="Performance requirement 5" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 5.</statement>
+        <acceptance><criterion id="CRIT-PERF-005"><then>The row 5 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-006" type="FR" title="Performance requirement 6" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 6.</statement>
+        <acceptance><criterion id="CRIT-PERF-006"><then>The row 6 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-007" type="FR" title="Performance requirement 7" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 7.</statement>
+        <acceptance><criterion id="CRIT-PERF-007"><then>The row 7 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-008" type="FR" title="Performance requirement 8" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 8.</statement>
+        <acceptance><criterion id="CRIT-PERF-008"><then>The row 8 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-009" type="FR" title="Performance requirement 9" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 9.</statement>
+        <acceptance><criterion id="CRIT-PERF-009"><then>The row 9 is structurally valid.</then></criterion></acceptance>
+      </req>
+      <req id="REQ-PERF-010" type="FR" title="Performance requirement 10" status="approved" priority="must">
+        <statement>The fixture SHALL support performance validation row 10.</statement>
+        <acceptance><criterion id="CRIT-PERF-010"><then>The row 10 is structurally valid.</then></criterion></acceptance>
+      </req>
+    </reqPackage>
+  </requirements>
+</rqml>
