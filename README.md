@@ -1,193 +1,197 @@
 # RQML Agent Skill
 
-The **RQML Agent Skill** is the agent-facing companion to the wider RQML ecosystem.
+Bring **RQML** into your coding-agent workflow in minutes.
 
-It gives coding agents a practical, low-friction way to work with **RQML (Requirements Markup Language)**: a structured XML format for writing software requirements with explicit traceability from goals and scenarios to requirements, verification, and implementation.
+The **RQML Agent Skill** helps coding agents author, validate, lint, review, and transform `.rqml` requirements specifications so your team can work in a more disciplined **spec-first** way without adding a heavy setup burden.
 
-This repository packages that capability as an **Agent Skill** so tools such as Claude Code, OpenAI Codex, Cursor, GitHub Copilot, Gemini CLI, and other skills-compatible hosts can more reliably:
+If you want agents to do more than “edit some XML” — and instead reliably work with requirements, traceability, acceptance criteria, and validation — this repository gives them the right entry point.
 
-- author and edit `.rqml` requirements documents
-- validate RQML files against bundled schemas
-- lint requirements for semantic quality and traceability policy
-- inspect and resolve trace links
-- extract requirement data for downstream tooling
-- generate traceability views for reviews and pull requests
+## Why install this skill
 
-## Where this project fits in the RQML ecosystem
+Teams adopt this skill because it makes agent-assisted requirements work more practical:
 
-The RQML ecosystem has a few distinct parts:
+- **Faster onboarding** — agents get a clear `SKILL.md` entry point and purpose-built references
+- **Less ambiguity** — agents are nudged toward spec → design → plan → code → verify workflows
+- **Better validation** — bundled schemas and validation tooling reduce guesswork
+- **Better traceability** — requirements, goals, scenarios, tests, and implementation stay easier to connect
+- **Low friction** — no build step is required for normal use
+- **Offline-friendly** — core validation workflows can run without network access
 
-- **[rqml.org](https://rqml.org/)** — the canonical home of the RQML language, schema, and documentation
-- **[rqml.dev](https://rqml.dev/)** — the broader tooling and developer experience surface around RQML, including the VS Code extension and related tools
-- **`rqml-skill`** — this repository, which brings RQML into agent workflows through the Agent Skills model
+## Getting started
 
-In other words:
+### 1. Install the skill
 
-- **rqml.org defines the specification**
-- **rqml.dev helps humans use RQML effectively in tools such as VS Code**
-- **rqml-skill helps coding agents understand, generate, review, and validate RQML artifacts as part of day-to-day software delivery**
+Clone or copy this repository into the skills directory used by your coding agent host.
 
-That positioning matters because this project is not trying to replace the RQML specification or the VS Code experience. Instead, it connects them to agentic development workflows.
+The exact location depends on the host, but the core idea is simple: the agent needs access to this repository so it can discover `SKILL.md` and the supporting files in this project.
 
-```mermaid
-flowchart LR
-  A["rqml.org<br/>Canonical RQML spec, schemas, docs"] --> B["RQML ecosystem"]
-  C["rqml.dev<br/>Tooling hub and VS Code extension"] --> B
-  D["rqml-skill<br/>Agent skill for authoring, validation, traceability, and review"] --> B
-  B --> E["Spec-first development workflows"]
-  E --> F["Humans in editors"]
-  E --> G["Coding agents in skills-compatible hosts"]
-```
+Once installed, restart or refresh your agent environment if needed.
 
-## Why the skill exists
+### 2. Confirm the key files are present
 
-RQML is especially valuable in workflows where requirements are the primary artifact and implementation must remain traceable to intent. That makes it a strong fit for AI-assisted and agentic software engineering.
+At minimum, this repository should contain:
 
-But an agent only benefits from RQML if it can do more than read XML. It needs help with:
+- `SKILL.md` — the activation entry point for the agent
+- `references/` — compact supporting docs for agent guidance
+- `references/schemas/` — bundled RQML schema files
+- `scripts/` — command-line tools for validation and analysis
+- `requirements.rqml` — this project’s own RQML specification
 
-- recognizing when a task is really about requirements engineering
-- understanding the expected RQML structure and conventions
-- validating files against the right schema version
-- enforcing traceability and quality expectations
-- producing outputs that fit real engineering workflows
+### 3. Activate it with the right kind of task
 
-This skill exists to provide that bridge.
+This skill is meant to activate when your task involves things like:
 
-It packages concise activation guidance in `SKILL.md`, deeper reference material under `references/`, and executable scripts under `scripts/` so an agent can move from vague “edit this requirements spec” behavior to a more disciplined **spec → design → plan → code → verify** workflow.
-
-## Relationship to the RQML VS Code extension
-
-The **RQML VS Code extension** at **rqml.dev** is aimed at improving the interactive editor experience for people working directly with RQML in VS Code.
-
-This skill complements that extension rather than overlapping with it:
-
-- the **VS Code extension** improves the human authoring environment
-- the **Agent Skill** improves the coding-agent behavior and workflow discipline
-
-Together, they support a stronger spec-first loop:
-
-1. A developer works on RQML in VS Code with editor support
-2. A coding agent uses this skill to interpret, validate, transform, and reason about the same specification
-3. The resulting implementation and verification artifacts stay better aligned with the requirements source of truth
-
-## Core capabilities in this repository
-
-This repository is intentionally lightweight and portable. It is designed to work immediately after clone in common agent runtimes, with no build step.
-
-### Agent activation
-
-`SKILL.md` provides front-loaded trigger phrases and concise operating guidance so compatible agents can discover and activate the skill when a task involves:
-
-- RQML
-- `.rqml` files
+- `rqml`
+- `.rqml files`
 - requirements specifications
 - traceability
-- validation and requirements review
+- acceptance criteria
+- schema validation
+- requirements review
 
-### Offline-safe schema validation
+Examples:
 
-The skill bundles supported RQML XSD versions under `references/schemas/` and exposes validation through `scripts/validate.py`.
+- “Validate this `.rqml` file and explain the errors.”
+- “Add a new requirement and acceptance criteria to this requirements specification.”
+- “Generate a traceability matrix from this RQML document.”
+- “Check whether these requirements have proper verification coverage.”
 
-Key properties:
+### 4. Run validation
 
-- auto-detects `rqml@version`
-- supports `--schema-version` override
-- uses a backend fallback chain: `xmllint → lxml → xmlschema`
-- works offline for bundled schema versions
-- can emit structured JSON output for downstream tools
-
-### Semantic lint and traceability checks
-
-The repository includes tools that go beyond basic XML validity:
-
-- `scripts/lint.py` for strictness-aware semantic linting
-- `scripts/check_traces.py` for resolving non-local trace targets
-- `scripts/id_audit.py` for identifier hygiene and change auditing
-- `scripts/matrix.py` for Markdown traceability matrices
-- `scripts/extract.py` for machine-readable requirement extraction
-
-These tools help agents and developers answer practical questions such as:
-
-- Is this requirements file structurally valid?
-- Are acceptance criteria present?
-- Are trace edges complete enough for the project’s strictness level?
-- Did identifiers drift between revisions?
-- What goals, scenarios, and tests are connected to each requirement?
-
-## Who this is for
-
-This project is useful if you are:
-
-- building software in a **spec-first** way
-- using coding agents to help author or maintain requirements
-- trying to keep requirements, traceability, and implementation aligned
-- working offline or in restricted execution environments
-- standardizing how agents interact with RQML across multiple hosts
-
-It is especially helpful for teams that want agents to treat requirements as first-class engineering artifacts rather than as informal notes.
-
-## Repository structure
-
-- `SKILL.md` — activation entry point for skills-compatible coding agents
-- `references/` — compact agent-oriented supporting documentation
-- `references/schemas/` — bundled RQML XSD files
-- `scripts/` — Python command-line tooling for validation, linting, trace checks, extraction, and reporting
-- `tests/` — fixtures and regression tests for the skill’s executable behavior
-- `.rqml/adr/` — architecture decision records for this repository
-- `.rqml/plan.md` — staged implementation plan used to guide delivery
-- `requirements.rqml` — the RQML specification for this skill itself
-
-## Typical workflow
-
-A common way to use this repository is:
-
-1. Install or clone the skill into your agent’s skills directory
-2. Let the agent activate the skill when a task involves RQML or requirements traceability
-3. Edit or generate RQML content
-4. Run validation and linting scripts
-5. Generate extracted views or traceability matrices as needed
-6. Keep implementation work aligned to the specification
-
-## Example commands
+The fastest way to get value from the repository is to validate an RQML document.
 
 ```bash
 python scripts/validate.py requirements.rqml
+```
+
+For machine-readable output:
+
+```bash
 python scripts/validate.py --json requirements.rqml
+```
+
+### 5. Run semantic checks
+
+After structural validation, run linting and trace-related checks.
+
+```bash
 python scripts/lint.py requirements.rqml
 python scripts/check_traces.py requirements.rqml
 python scripts/id_audit.py requirements.rqml
+```
+
+### 6. Generate useful outputs
+
+For downstream tooling or review workflows:
+
+```bash
 python scripts/extract.py requirements.rqml
 python scripts/matrix.py requirements.rqml
 ```
 
-## Design principles
+## What you get
 
-This skill follows a few consistent principles drawn from the project requirements and ADRs:
+This repository gives agents and developers a lightweight but practical toolbelt for RQML work.
 
-- **spec-first**: requirements come before implementation
-- **portable**: works across skills-compatible hosts
-- **offline-capable**: bundled schemas avoid runtime fetches for core validation
-- **low-friction**: no build pipeline required for normal use
-- **traceability-focused**: requirements, goals, scenarios, tests, and implementation should stay connected
-- **agent-optimized**: concise activation guidance, deeper references, executable tooling
+### Agent activation and guidance
 
-## How this repository uses RQML itself
+`SKILL.md` is designed to help compatible coding agents quickly recognize relevant tasks and load just enough context to act usefully.
 
-This project is also an example of RQML in practice.
+Detailed material is kept under `references/` so activation stays concise.
 
-The repository contains its own RQML specification in `requirements.rqml`, plus ADRs and an implementation plan. That means the skill is built using the same spec-first and traceability-oriented approach it encourages for other projects.
+### Offline-safe schema validation
+
+Validation is provided by `scripts/validate.py` using bundled XSD files under `references/schemas/`.
+
+The validator:
+
+- auto-detects the document’s `rqml@version`
+- supports `--schema-version` override
+- uses a backend fallback chain: `xmllint → lxml → xmlschema`
+- works offline for bundled schema versions
+- supports JSON output for automation
+
+### Semantic quality and traceability tooling
+
+The repository also includes:
+
+- `scripts/lint.py` — strictness-aware semantic linting
+- `scripts/check_traces.py` — trace locator resolution
+- `scripts/id_audit.py` — ID quality and change detection
+- `scripts/extract.py` — requirement extraction as JSON
+- `scripts/matrix.py` — Markdown traceability matrix generation
+
+## Common use cases
+
+Use this skill when you want a coding agent to help with tasks such as:
+
+- creating or updating requirements in valid RQML format
+- checking whether a spec is structurally valid
+- enforcing acceptance-criteria and traceability expectations
+- reviewing requirement coverage and verification links
+- exporting requirement data for other tools
+- generating review-friendly documentation from trace graphs
+
+## Quick repository tour
+
+- `SKILL.md` — agent activation entry point
+- `references/activation.md` — activation and workflow cues
+- `references/usage.md` — usage guidance
+- `references/provenance.md` — schema provenance notes
+- `references/schemas/` — bundled RQML XSDs
+- `scripts/` — Python tooling
+- `tests/` — regression coverage and fixtures
+- `.rqml/adr/` — architecture decision records
+- `.rqml/plan.md` — implementation plan
+- `requirements.rqml` — this project’s own specification
+
+## Requirements and runtime expectations
+
+This repository is intentionally lightweight:
+
+- Python **3.8+** is the baseline runtime for scripts
+- no build or compilation step is required
+- core validation is designed to work offline when a matching bundled schema is present
+- optional backends such as `xmllint`, `lxml`, or `xmlschema` may affect which validation path is used
+
+## If you are evaluating RQML for the first time
+
+This skill is a good starting point if you want to see what an agent-friendly, traceability-focused requirements workflow looks like in practice.
+
+The repository includes:
+
+- a real RQML specification for the skill itself in `requirements.rqml`
+- supporting ADRs under `.rqml/adr/`
+- validation, linting, extraction, and matrix tooling
+- test fixtures that show valid and invalid RQML documents
+
+That makes it useful both as a tool and as a working example.
+
+## About the wider RQML ecosystem
+
+RQML has a broader home beyond this repository:
+
+- **[rqml.org](https://rqml.org/)** is the canonical source for the RQML language, schemas, and core documentation
+- **[rqml.dev](https://rqml.dev/)** is the tooling and developer-experience surface, including the VS Code extension and related tooling
+- **this repository** provides the agent-workflow layer, helping coding agents participate more reliably in RQML-based software delivery
+
+So the short version is:
+
+- **rqml.org** defines RQML
+- **rqml.dev** helps people use RQML in tools
+- **rqml-skill** helps coding agents use RQML well
 
 ## Learn more
 
-- **RQML canonical docs and schemas:** [rqml.org](https://rqml.org/)
-- **RQML tooling and VS Code extension:** [rqml.dev](https://rqml.dev/)
-- **Skill activation entry point:** [`SKILL.md`](./SKILL.md)
-- **Project-specific references:** [`references/`](./references/)
-- **Executable tooling:** [`scripts/`](./scripts/)
-- **Specification for this project:** [`requirements.rqml`](./requirements.rqml)
+- [rqml.org](https://rqml.org/)
+- [rqml.dev](https://rqml.dev/)
+- [`SKILL.md`](./SKILL.md)
+- [`references/`](./references/)
+- [`scripts/`](./scripts/)
+- [`requirements.rqml`](./requirements.rqml)
 
 ## Summary
 
-The RQML Agent Skill gives coding agents a disciplined, practical way to participate in requirements engineering with RQML.
+The **RQML Agent Skill** is the fastest way to make coding agents more useful on RQML tasks.
 
-It sits alongside **rqml.org** and **rqml.dev** as the agent-workflow layer of the ecosystem: turning the RQML language and tooling model into something agents can reliably activate, validate, and use to support traceable software delivery.
+It improves onboarding, reduces ambiguity, supports offline validation, and helps agents work with requirements and traceability as first-class engineering artifacts.
