@@ -11,7 +11,7 @@ If you want agents to do more than “edit some XML” — and instead reliably 
 Teams adopt this skill because it makes agent-assisted requirements work more practical:
 
 - **Faster onboarding** — agents get a clear `SKILL.md` entry point and purpose-built references
-- **Less ambiguity** — agents are nudged toward spec → design → plan → code → verify workflows
+- **Less ambiguity** — agents are nudged toward the five-stage [spec → design → plan → code → verify](https://rqml.org/docs/development-process) process
 - **Better validation** — bundled schemas and validation tooling reduce guesswork
 - **Better traceability** — requirements, goals, scenarios, tests, and implementation stay easier to connect
 - **Low friction** — no build step is required for normal use
