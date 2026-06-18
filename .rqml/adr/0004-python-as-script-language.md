@@ -1,6 +1,6 @@
 # ADR-0004: Scripts are written in Python 3.8+
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0008](0008-thin-skill-over-rqml-cli.md)
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-PYTHON`
 - **Related requirements**: `REQ-PYTHON`, `REQ-PLATFORM`

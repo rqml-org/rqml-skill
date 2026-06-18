@@ -1,6 +1,6 @@
 # ADR-0003: Validation uses an `xmllint → lxml → xmlschema` fallback chain
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0008](0008-thin-skill-over-rqml-cli.md)
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-FALLBACK`
 - **Related requirements**: `REQ-FALLBACK`, `REQ-XSD-VALIDATE`

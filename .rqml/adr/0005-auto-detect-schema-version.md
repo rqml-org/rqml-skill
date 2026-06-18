@@ -1,6 +1,6 @@
 # ADR-0005: Schema version is auto-detected from `rqml@version`
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0008](0008-thin-skill-over-rqml-cli.md)
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-AUTODETECT`
 - **Related requirements**: `REQ-VERSION-DETECT`, `REQ-BUNDLE`

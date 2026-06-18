@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rqml xmlns="https://rqml.org/schema/2.1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="https://rqml.org/schema/2.1.0 https://rqml.org/schema/rqml-2.1.0.xsd"
+      version="2.1.0" docId="RQML-SKILL-001" status="draft">
+
+  <meta>
+    <title>RQML Agent Skill</title>
+    <system>rqml-skill</system>
+    <summary>A portable, open-standard Agent Skill that teaches coding agents the RQML five-stage workflow and drives the @rqml/cli toolchain. It works across any skills-compatible host (Claude Code, OpenAI Codex, OpenCode, Cursor, GitHub Copilot, Gemini CLI, and others) that cannot load the host-specific rqml-claude/rqml-codex plugins. All engine work — validation, lint, traceability, coverage, drift — is delegated to @rqml/cli; the skill ships no engine of its own.</summary>
+    <authors>
+      <author>
+        <name>Gardar Gudgeirsson</name>
+        <role>Maintainer</role>
+      </author>
+    </authors>
+  </meta>
+
+  <catalogs>
+    <actors>
+      <actor id="ACT-AGENT" name="Coding agent"/>
+      <actor id="ACT-DEVELOPER" name="Developer"/>
+    </actors>
+    <constraints>
+      <constraint id="CON-AGENTSKILLS">
+        <statement>SKILL.md must conform to the open Agent Skills specification (YAML frontmatter with at least name and description).</statement>
+        <source>agentskills.io specification</source>
+      </constraint>
+      <constraint id="CON-TOKEN-BUDGET">
+        <statement>The SKILL.md body must stay under 5000 tokens and 500 lines per the Agent Skills authoring guidance; detail lives in references/.</statement>
+        <source>agentskills.io/specification</source>
+      </constraint>
+      <constraint id="CON-CLI">
+        <statement>The skill must perform every RQML engine operation by invoking the @rqml/cli command line (installed as rqml, or via npx @rqml/cli), and must not reimplement any engine behaviour itself.</statement>
+      </constraint>
+      <constraint id="CON-LICENSE">
+        <statement>Source must be licensed under Apache-2.0 to match the upstream RQML standard and the Agent Skills standard.</statement>
+      </constraint>
+    </constraints>
+    <risks>
+      <risk id="RISK-CLI-MISSING" severity="medium">
+        <statement>The host environment has no @rqml/cli on PATH and no Node.js to run npx.</statement>
+        <mitigation>SKILL.md leads with a one-line check and install hint (npm i -g @rqml/cli, or npx @rqml/cli); the skill instructs the agent to surface that requirement rather than fail silently.</mitigation>
+      </risk>
+      <risk id="RISK-CLI-VERSION" severity="medium">
+        <statement>The skill documents a command or flag that the host's installed @rqml/cli is too old to provide (e.g. lint, --workspace, rqml_discover).</statement>
+        <mitigation>The skill states a minimum @rqml/cli version and tells the agent to prefer a pinned npx invocation when the local version is older.</mitigation>
+      </risk>
+      <risk id="RISK-CONTEXT-BLOAT" severity="medium">
+        <statement>SKILL.md grows over time and consumes significant context on every activation.</statement>
+        <mitigation>A token-budget CI check on PRs; detail pushed into references/ rather than the body.</mitigation>
+      </risk>
+    </risks>
+    <decisions>
+      <decision id="DEC-CLI-DELEGATION" status="approved">
+        <context>The skill originally reimplemented the RQML engine in portable Python (validation, lint, trace, matrix), which duplicated @rqml/core and drifted from it.</context>
+        <decision>Rewrite the skill as a thin, open-standard SKILL.md skill that delegates all engine work to @rqml/cli; retire the Python engine, bundled schemas, and validation backends. See ADR-0008.</decision>
+      </decision>
+      <decision id="DEC-REPO" status="approved">
+        <context>Where the skill source lives relative to rqml.org (spec) and rqml.dev (toolset).</context>
+        <decision>A separate repository under the rqml-org organization, linked from rqml.org as the canonical host-agnostic agent integration. See ADR-0001.</decision>
+      </decision>
+      <decision id="DEC-MIRROR" status="approved">
+        <context>References content overlaps with the rqml.org docs.</context>
+        <decision>Mirror by reference, not duplication: references/ are agent-optimized condensations that link back to the canonical docs. See ADR-0006.</decision>
+      </decision>
+    </decisions>
+    <policies>
+      <policy id="POL-SKILL-SPEC" source="agentskills.io">
+        <obligation>SKILL.md must include valid YAML frontmatter with at least name and description fields.</obligation>
+      </policy>
+      <policy id="POL-SEMVER" source="semver.org">
+        <obligation>Skill versions follow semantic versioning.</obligation>
+      </policy>
+    </policies>
+  </catalogs>
+
+  <domain>
+    <entities>
+      <entity id="ENT-SKILL" name="Skill">
+        <attr id="ATTR-SKILL-NAME" name="name" type="string" required="true"/>
+        <attr id="ATTR-SKILL-DESC" name="description" type="string" required="true"/>
+      </entity>
+      <entity id="ENT-RQMLDOC" name="RqmlDocument">
+        <attr id="ATTR-DOC-PATH" name="path" type="string" required="true"/>
+      </entity>
+      <entity id="ENT-CLI" name="RqmlCli">
+        <attr id="ATTR-CLI-VERSION" name="version" type="string" required="true"/>
+      </entity>
+    </entities>
+  </domain>
+
+  <goals>
+    <goal id="GOAL-PORTABILITY" title="Cross-host portability" priority="must">
+      <statement>The skill activates and works on any skills-compatible agent host through the open Agent Skills standard, without a host-specific plugin.</statement>
+    </goal>
+    <goal id="GOAL-CANONICAL" title="No engine drift" priority="must">
+      <statement>Every result the skill produces is exactly what @rqml/cli produces, because the skill delegates to it and reimplements no engine behaviour — so the skill can never drift from the canonical RQML toolchain.</statement>
+    </goal>
+    <goal id="GOAL-LOW-FRICTION" title="Low-friction install" priority="must">
+      <statement>A developer or agent adopts the skill by dropping it into the host's skills directory; the only runtime dependency is @rqml/cli, runnable with no build step.</statement>
+    </goal>
+    <goal id="GOAL-SPEC-FIRST" title="Drive the five-stage process" priority="should">
+      <statement>The skill guides agents through the RQML five-stage process — Spec, Design, Plan, Code, Verify — rather than merely editing XML.</statement>
+    </goal>
+    <qgoal id="QGOAL-FAST-ACTIVATION" title="Cheap activation" priority="should">
+      <statement>SKILL.md activates with a small token cost and loads detail progressively from references/.</statement>
+      <metric>SKILL.md body at most 5000 tokens and 500 lines.</metric>
+    </qgoal>
+  </goals>
+
+  <scenarios>
+    <scenario id="SCN-VALIDATE" title="Validate after edit" actorRef="ACT-AGENT">
+      <narrative>After editing a spec, the agent runs `rqml validate` (and `rqml check` before finishing) as the skill instructs, and acts on the engine's diagnostics.</narrative>
+    </scenario>
+    <scenario id="SCN-AUTHOR" title="Author a requirement" actorRef="ACT-AGENT">
+      <narrative>The agent runs `rqml skeleton req` for a schema-valid snippet, fills it in, inserts it, and re-validates — following the skill's authoring guidance.</narrative>
+    </scenario>
+    <scenario id="SCN-MATRIX" title="Review coverage" actorRef="ACT-DEVELOPER">
+      <narrative>A developer or agent runs `rqml matrix` (and `rqml lint`) to review per-requirement coverage and document-quality findings.</narrative>
+    </scenario>
+    <scenario id="SCN-MONOREPO" title="Check a repository of specs" actorRef="ACT-AGENT">
+      <narrative>In a repository with several specs, the agent runs `rqml check --workspace` to gate every governing spec at once, as the skill describes.</narrative>
+    </scenario>
+    <scenario id="SCN-INSTALL" title="Install on any host" actorRef="ACT-DEVELOPER">
+      <narrative>A developer places the skill in a standard skills directory (e.g. .claude/skills/ or .agents/skills/); the host discovers SKILL.md and activates it on matching tasks, with @rqml/cli available via install or npx.</narrative>
+    </scenario>
+    <edgeCase id="SCN-NO-CLI" title="No @rqml/cli available" actorRef="ACT-AGENT">
+      <narrative>The host lacks @rqml/cli and Node. The skill instructs the agent to install it (or use npx) and surfaces the requirement clearly rather than attempting any engine work itself.</narrative>
+    </edgeCase>
+  </scenarios>
+
+  <requirements>
+    <reqPackage id="PKG-SKILL" title="Skill package (open-standard SKILL.md)">
+      <req id="REQ-SKILL-MD" type="FR" title="SKILL.md compliance" priority="must" status="approved">
+        <statement>The skill SHALL ship a SKILL.md whose YAML frontmatter conforms to the open Agent Skills specification, including the required name and description fields.</statement>
+        <acceptance>
+          <criterion id="CRIT-SKILL-MD">
+            <given>The skill's SKILL.md</given>
+            <when>Its frontmatter is checked against the Agent Skills specification</when>
+            <then>The name and description fields are present and valid, with no schema violations.</then>
+          </criterion>
+        </acceptance>
+      </req>
+      <req id="REQ-TRIGGERS" type="FR" title="Activation triggers" priority="must" status="approved">
+        <statement>The SKILL.md description SHALL front-load trigger phrases — including "rqml", ".rqml file", "requirements specification", and "traceability" — so description-matching activation fires reliably.</statement>
+      </req>
+      <req id="REQ-TOKEN-BUDGET" type="NFR" title="SKILL.md token budget" priority="must" status="approved">
+        <statement>The SKILL.md body SHALL be no more than 5000 tokens and 500 lines, with detail moved to references/.</statement>
+      </req>
+      <req id="REQ-PORTABLE" type="FR" title="Host-agnostic activation" priority="must" status="approved">
+        <statement>The skill SHALL be usable on any skills-compatible host via the standard skills directories (for example .claude/skills/ or .agents/skills/) without a host-specific plugin or per-host code.</statement>
+        <acceptance>
+          <criterion id="CRIT-PORTABLE">
+            <given>A skills-compatible host that is not Claude Code or Codex, such as OpenCode</given>
+            <when>The skill directory is placed in a discovery location the host scans</when>
+            <then>The host discovers and can activate the skill with no host-specific adaptation.</then>
+          </criterion>
+        </acceptance>
+      </req>
+      <req id="REQ-FIVE-STAGE" type="PR" title="Guide the five-stage process" priority="should" status="approved">
+        <statement>The skill SHALL guide agents through the five-stage RQML process (Spec, Design, Plan, Code, Verify), mapping each stage to the relevant @rqml/cli commands.</statement>
+      </req>
+    </reqPackage>
+
+    <reqPackage id="PKG-CLI" title="Delegation to @rqml/cli">
+      <req id="REQ-CLI-DELEGATION" type="FR" title="Delegate all engine work to @rqml/cli" priority="must" status="approved">
+        <statement>The skill SHALL perform every RQML engine operation — validate, lint, check, status, trace, matrix, overview, show, impact, link, approve, gate, skeleton, and spec discovery — by invoking @rqml/cli, and SHALL reimplement none of them.</statement>
+        <rationale>@rqml/cli is the published surface of @rqml/core, the canonical engine. Delegating eliminates the drift a parallel reimplementation suffers — the root cause behind retiring the Python engine. See ADR-0008.</rationale>
+        <acceptance>
+          <criterion id="CRIT-DELEGATION">
+            <given>The skill repository</given>
+            <when>It is inspected for engine logic such as parsing, XSD validation, lint, or trace resolution</when>
+            <then>No such logic is present; the skill contains only SKILL.md, references, and tests that invoke @rqml/cli.</then>
+          </criterion>
+        </acceptance>
+      </req>
+      <req id="REQ-CLI-RUNTIME" type="IR" title="CLI invocation and version floor" priority="must" status="approved">
+        <statement>The skill SHALL invoke the toolchain as `rqml` or `npx @rqml/cli` with no build step, and SHALL state a minimum supported @rqml/cli version covering the commands it documents (including lint, check --workspace, and spec discovery).</statement>
+        <acceptance>
+          <criterion id="CRIT-RUNTIME-VERSION">
+            <given>A host with @rqml/cli at or above the stated minimum version</given>
+            <when>The agent runs a command the skill documents</when>
+            <then>The command is available and executes through @rqml/cli.</then>
+          </criterion>
+        </acceptance>
+      </req>
+      <req id="REQ-NO-ENGINE" type="CR" title="Ship no engine" priority="must" status="approved">
+        <statement>The skill SHALL ship no engine, schema, or validation backend of its own; correctness and offline operation are inherited from @rqml/cli, which bundles the canonical schema and runs offline.</statement>
+      </req>
+    </reqPackage>
+
+    <reqPackage id="PKG-LICENSING" title="Licensing">
+      <req id="REQ-LICENSE" type="OR" title="Apache-2.0" priority="must" status="approved">
+        <statement>The skill SHALL be licensed under Apache-2.0 to match the upstream RQML standard and the Agent Skills standard.</statement>
+      </req>
+    </reqPackage>
+  </requirements>
+
+  <verification>
+    <testSuite id="TS-SKILL" title="Skill self-tests">
+      <description>Lightweight checks that SKILL.md conforms to the Agent Skills standard and that the commands the skill documents exist in the pinned @rqml/cli. No engine behaviour is tested here — that lives in @rqml/core.</description>
+    </testSuite>
+    <testCase id="TC-SKILL-MD" type="acceptance" title="SKILL.md frontmatter is standard-conformant">
+      <steps>Parse SKILL.md frontmatter and assert the required Agent Skills fields (name, description) are present and valid.</steps>
+      <expected>Frontmatter validates and the description contains the trigger phrases.</expected>
+    </testCase>
+    <testCase id="TC-CLI-COMMANDS" type="integration" title="Documented commands exist in the pinned CLI">
+      <steps>For each rqml command the skill documents, assert it is present in @rqml/cli at the stated minimum version.</steps>
+      <expected>Every documented command resolves; none is missing from the pinned CLI.</expected>
+    </testCase>
+  </verification>
+
+  <trace>
+    <edge id="E-SKILLMD-PORT" type="satisfies" confidence="0.9">
+      <from><locator><local id="REQ-SKILL-MD"/></locator></from>
+      <to><locator><local id="GOAL-PORTABILITY"/></locator></to>
+    </edge>
+    <edge id="E-PORTABLE-PORT" type="satisfies" confidence="0.95">
+      <from><locator><local id="REQ-PORTABLE"/></locator></from>
+      <to><locator><local id="GOAL-PORTABILITY"/></locator></to>
+    </edge>
+    <edge id="E-TRIGGERS-PORT" type="satisfies" confidence="0.8">
+      <from><locator><local id="REQ-TRIGGERS"/></locator></from>
+      <to><locator><local id="GOAL-PORTABILITY"/></locator></to>
+    </edge>
+    <edge id="E-TOKEN-ACTIVATION" type="satisfies" confidence="0.9">
+      <from><locator><local id="REQ-TOKEN-BUDGET"/></locator></from>
+      <to><locator><local id="QGOAL-FAST-ACTIVATION"/></locator></to>
+    </edge>
+    <edge id="E-DELEGATION-CANONICAL" type="satisfies" confidence="0.95">
+      <from><locator><local id="REQ-CLI-DELEGATION"/></locator></from>
+      <to><locator><local id="GOAL-CANONICAL"/></locator></to>
+    </edge>
+    <edge id="E-NOENGINE-CANONICAL" type="satisfies" confidence="0.9">
+      <from><locator><local id="REQ-NO-ENGINE"/></locator></from>
+      <to><locator><local id="GOAL-CANONICAL"/></locator></to>
+    </edge>
+    <edge id="E-RUNTIME-LOWFRICTION" type="satisfies" confidence="0.85">
+      <from><locator><local id="REQ-CLI-RUNTIME"/></locator></from>
+      <to><locator><local id="GOAL-LOW-FRICTION"/></locator></to>
+    </edge>
+    <edge id="E-FIVESTAGE-SPECFIRST" type="satisfies" confidence="0.9">
+      <from><locator><local id="REQ-FIVE-STAGE"/></locator></from>
+      <to><locator><local id="GOAL-SPEC-FIRST"/></locator></to>
+    </edge>
+    <edge id="E-DELEGATION-DEC" type="dependsOn" confidence="1.0">
+      <from><locator><local id="REQ-CLI-DELEGATION"/></locator></from>
+      <to><locator><local id="DEC-CLI-DELEGATION"/></locator></to>
+    </edge>
+    <edge id="E-CLIVER-RISK" type="mitigates" confidence="0.8">
+      <from><locator><local id="REQ-CLI-RUNTIME"/></locator></from>
+      <to><locator><local id="RISK-CLI-VERSION"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-SKILL-MD" type="implements">
+      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-SKILL-MD"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-TRIGGERS" type="implements">
+      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-TRIGGERS"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-TOKEN-BUDGET" type="implements">
+      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-TOKEN-BUDGET"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-PORTABLE" type="implements">
+      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-PORTABLE"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-CLI-DELEGATION" type="implements">
+      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-CLI-DELEGATION"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-CLI-RUNTIME" type="implements">
+      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-CLI-RUNTIME"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-FIVE-STAGE" type="implements">
+      <from><locator><external uri="references/usage.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-FIVE-STAGE"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-LICENSE" type="implements">
+      <from><locator><external uri="LICENSE" kind="code"/></locator></from>
+      <to><locator><local id="REQ-LICENSE"/></locator></to>
+    </edge>
+  </trace>
+</rqml>
