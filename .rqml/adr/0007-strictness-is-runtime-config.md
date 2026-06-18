@@ -1,6 +1,6 @@
 # ADR-0007: Strictness level is read at runtime from project config
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0008](0008-thin-skill-over-rqml-cli.md)
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-STRICTNESS`
 - **Related requirements**: `REQ-LINT`

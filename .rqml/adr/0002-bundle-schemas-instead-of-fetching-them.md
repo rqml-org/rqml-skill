@@ -1,6 +1,6 @@
 # ADR-0002: Bundle XSDs in the skill instead of fetching at runtime
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR-0008](0008-thin-skill-over-rqml-cli.md)
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-BUNDLE`
 - **Related requirements**: `REQ-BUNDLE`, `REQ-OFFLINE`, `REQ-PROVENANCE`
