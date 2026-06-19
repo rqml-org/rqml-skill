@@ -1,0 +1,41 @@
+name: Craft version check
+
+# The sync (sync-craft.yml) and the plugins' drift guards key off the
+# "<!-- canonical-version: N -->" stamp in references/authoring.md, but bumping
+# it is otherwise only a documented convention. This guard fails any PR that
+# changes references/authoring.md without increasing the stamp, so the version
+# the sync/guards depend on can never silently go stale (REQ-CRAFT-SYNC).
+
+on:
+  pull_request:
+    paths: ['references/authoring.md']
+
+permissions:
+  contents: read
+
+jobs:
+  version-bumped:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Require a canonical-version increment
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          ver() { git show "$1:references/authoring.md" 2>/dev/null \
+                    | grep -oE 'canonical-version: [0-9]+' | head -1 | grep -oE '[0-9]+'; }
+          new="$(ver HEAD || true)"
+          old="$(ver "$BASE_SHA" || true)"
+          echo "base canonical-version: ${old:-<none>}; PR canonical-version: ${new:-<none>}"
+          if [ -z "$new" ]; then
+            echo "::error file=references/authoring.md::missing a canonical-version stamp"
+            exit 1
+          fi
+          if [ -n "$old" ] && [ "$new" -le "$old" ]; then
+            echo "::error file=references/authoring.md::references/authoring.md changed but canonical-version did not increase (${old} -> ${new}). Bump the stamp."
+            exit 1
+          fi
+          echo "OK: canonical-version ${old:-<new file>} -> ${new}"

@@ -52,7 +52,7 @@
       </risk>
       <risk id="RISK-CRAFT-DRIFT" severity="medium">
         <statement>The plugins' vendored copies of references/authoring.md fall out of step with the canonical reference in rqml-skill.</statement>
-        <mitigation>An automated sync opens refresh pull requests on each plugin when the reference changes (REQ-CRAFT-SYNC), and each plugin runs a CI drift guard that fails when its vendored copy diverges from the canonical source.</mitigation>
+        <mitigation>rqml-skill owns the propagation half: an automated sync opens a refresh pull request on each plugin when the reference changes (REQ-CRAFT-SYNC). The blocking half is owned by each plugin — a CI drift guard that fails when its vendored copy diverges from the canonical source — so within this repo the sync only proposes a refresh, and the guard that actually prevents stale copies lives downstream.</mitigation>
       </risk>
     </risks>
     <decisions>
@@ -346,6 +346,10 @@
     </edge>
     <edge id="E-IMPL-CRAFT-SYNC" type="implements">
       <from><locator><external uri=".github/workflows/sync-craft.yml" kind="code"/></locator></from>
+      <to><locator><local id="REQ-CRAFT-SYNC"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-CRAFT-VERSION" type="implements">
+      <from><locator><external uri=".github/workflows/craft-version-check.yml" kind="code"/></locator></from>
       <to><locator><local id="REQ-CRAFT-SYNC"/></locator></to>
     </edge>
   </trace>
