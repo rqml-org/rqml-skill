@@ -63,6 +63,7 @@ rqml check --workspace  # gate every spec in a monorepo, one aggregated exit cod
 ## More detail
 
 - `references/authoring.md` — the canonical RQML authoring craft (document structure, statement quality, identity, traceability).
+- `references/monorepo.md` — which spec governs a file in a monorepo, and how discovery works (parent directories vs subdirectories).
 - `references/usage.md` — the five-stage workflow, command by command.
 - `references/activation.md` — when to activate and the trigger cues.
 - Canonical docs: https://rqml.org/docs/ · CLI reference: https://rqml.org/docs/tooling/cli
