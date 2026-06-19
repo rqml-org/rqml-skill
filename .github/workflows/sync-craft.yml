@@ -57,7 +57,11 @@ jobs:
           mkdir -p "$(dirname "$dest")"
           cp references/authoring.md "$dest"
           cd target
-          if git diff --quiet -- skills/rqml-authoring/authoring.md; then
+          git add skills/rqml-authoring/authoring.md
+          # Stage first, then compare the index to HEAD: this detects a brand-new
+          # (untracked) vendored file as well as a modified one. `git diff --quiet`
+          # alone ignores untracked files and would skip the initial bootstrap.
+          if git diff --cached --quiet; then
             echo "${{ matrix.target }} already up to date — nothing to sync."
             exit 0
           fi
@@ -66,7 +70,6 @@ jobs:
           git config user.name "rqml craft-sync"
           git config user.email "noreply@rqml.org"
           git checkout -b "$branch"
-          git add skills/rqml-authoring/authoring.md
           git commit -m "chore: sync RQML authoring craft from rqml-skill (v${version})"
           git push -f origin "$branch"
           gh pr create --base main --head "$branch" \
