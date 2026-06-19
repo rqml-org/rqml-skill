@@ -1,7 +1,8 @@
-name: Sync authoring craft to plugins
+name: Sync RQML reference docs to plugins
 
-# Propagates references/authoring.md (the canonical RQML authoring craft) to the
-# rqml-claude and rqml-codex plugins by opening a refresh PR on each whenever the
+# Propagates the canonical RQML reference docs — references/authoring.md (authoring
+# craft) and references/monorepo.md (monorepo spec-scope & discovery) — to the
+# rqml-claude and rqml-codex plugins by opening a refresh PR on each whenever either
 # reference changes on main. Implements REQ-CRAFT-SYNC (see ADR-0009).
 #
 # PREREQUISITE: a repository secret CRAFT_SYNC_TOKEN — a PAT or GitHub App token
@@ -11,7 +12,7 @@ name: Sync authoring craft to plugins
 on:
   push:
     branches: [main]
-    paths: ['references/authoring.md']
+    paths: ['references/authoring.md', 'references/monorepo.md']
   workflow_dispatch:
 
 permissions:
@@ -47,37 +48,38 @@ jobs:
           token: ${{ secrets.CRAFT_SYNC_TOKEN }}
           path: target
 
-      - name: Vendor craft and open PR
+      - name: Vendor references and open PR
         if: steps.guard.outputs.run == 'true'
         env:
           GH_TOKEN: ${{ secrets.CRAFT_SYNC_TOKEN }}
         run: |
           set -euo pipefail
-          dest="target/skills/rqml-authoring/authoring.md"
-          mkdir -p "$(dirname "$dest")"
-          cp references/authoring.md "$dest"
+          mkdir -p target/skills/rqml-authoring
+          for f in authoring.md monorepo.md; do
+            cp "references/$f" "target/skills/rqml-authoring/$f"
+          done
           cd target
-          git add skills/rqml-authoring/authoring.md
-          # Stage first, then compare the index to HEAD: this detects a brand-new
-          # (untracked) vendored file as well as a modified one. `git diff --quiet`
+          git add skills/rqml-authoring/authoring.md skills/rqml-authoring/monorepo.md
+          # Stage first, then compare the index to HEAD: this detects brand-new
+          # (untracked) vendored files as well as modified ones. `git diff --quiet`
           # alone ignores untracked files and would skip the initial bootstrap.
           if git diff --cached --quiet; then
             echo "${{ matrix.target }} already up to date — nothing to sync."
             exit 0
           fi
-          version="$(grep -oE 'canonical-version: [0-9]+' ../references/authoring.md | head -1 | grep -oE '[0-9]+')"
-          # Key the branch on the craft content, not the human-bumped version, so
-          # each distinct revision gets its own branch/PR and re-runs are
-          # idempotent — a force-push can never clobber an unrelated revision.
-          hash="$(sha256sum ../references/authoring.md | cut -c1-12)"
-          branch="craft-sync/authoring-${hash}"
+          ver() { grep -oE 'canonical-version: [0-9]+' "../references/$1" | head -1 | grep -oE '[0-9]+'; }
+          # Key the branch on the combined content of both references, not the
+          # human-bumped versions, so each distinct revision gets its own branch/PR
+          # and a force-push can never clobber an unrelated revision.
+          hash="$(cat ../references/authoring.md ../references/monorepo.md | sha256sum | cut -c1-12)"
+          branch="craft-sync/refs-${hash}"
           git config user.name "rqml craft-sync"
           git config user.email "noreply@rqml.org"
           git checkout -b "$branch"
-          git commit -m "chore: sync RQML authoring craft from rqml-skill (v${version}, ${hash})"
+          git commit -m "chore: sync RQML reference docs from rqml-skill (${hash})"
           git push -f origin "$branch"
-          title="Sync RQML authoring craft (v${version})"
-          body="Automated sync of the canonical authoring craft from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill) \`references/authoring.md\` (canonical-version ${version}, content ${hash}). Do not edit the vendored copy directly — change it upstream in rqml-skill and let craft-sync propagate."
+          title="Sync RQML reference docs"
+          body="Automated sync of the canonical RQML references from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill): \`authoring.md\` (canonical-version $(ver authoring.md)) and \`monorepo.md\` (canonical-version $(ver monorepo.md)) — content ${hash}. Do not edit the vendored copies directly — change them upstream in rqml-skill and let craft-sync propagate."
           # Explicit existence check so a genuine create failure is not masked as
           # "already exists", and so an update refreshes both title and body.
           existing="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"
