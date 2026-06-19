@@ -50,6 +50,10 @@
         <statement>SKILL.md grows over time and consumes significant context on every activation.</statement>
         <mitigation>A token-budget CI check on PRs; detail pushed into references/ rather than the body.</mitigation>
       </risk>
+      <risk id="RISK-CRAFT-DRIFT" severity="medium">
+        <statement>The plugins' vendored copies of references/authoring.md fall out of step with the canonical reference in rqml-skill.</statement>
+        <mitigation>An automated sync opens refresh pull requests on each plugin when the reference changes (REQ-CRAFT-SYNC), and each plugin runs a CI drift guard that fails when its vendored copy diverges from the canonical source.</mitigation>
+      </risk>
     </risks>
     <decisions>
       <decision id="DEC-CLI-DELEGATION" status="approved">
@@ -63,6 +67,10 @@
       <decision id="DEC-MIRROR" status="approved">
         <context>References content overlaps with the rqml.org docs.</context>
         <decision>Mirror by reference, not duplication: references/ are agent-optimized condensations that link back to the canonical docs. See ADR-0006.</decision>
+      </decision>
+      <decision id="DEC-CRAFT-HOME" status="approved">
+        <context>RQML authoring craft — document structure, statement quality, identity, traceability — was independently re-expressed in the rqml-claude and rqml-codex plugins and had diverged, with no single canonical home.</context>
+        <decision>Make rqml-skill the canonical, host-agnostic home for agent-facing RQML authoring craft, delivered as references/authoring.md (an agent-optimized condensation that still links to the rqml.org docs, per DEC-MIRROR). SKILL.md stays thin and points to it. The rqml-claude and rqml-codex plugins vendor a synced copy of this reference for offline, in-context use rather than re-expressing it; rqml-skill provides an automated sync that opens a refresh pull request on each plugin when the reference changes, and each plugin runs a CI drift guard that fails when its vendored copy diverges from the canonical. See ADR-0009.</decision>
       </decision>
     </decisions>
     <policies>
@@ -102,6 +110,9 @@
     </goal>
     <goal id="GOAL-SPEC-FIRST" title="Drive the five-stage process" priority="should">
       <statement>The skill guides agents through the RQML five-stage process — Spec, Design, Plan, Code, Verify — rather than merely editing XML.</statement>
+    </goal>
+    <goal id="GOAL-CRAFT-HOME" title="Canonical authoring-craft home" priority="should">
+      <statement>The skill is the single, host-agnostic source of RQML authoring craft — document structure, statement quality, identity, and traceability — that the rqml-claude and rqml-codex plugins and other skills derive from rather than re-expressing.</statement>
     </goal>
     <qgoal id="QGOAL-FAST-ACTIVATION" title="Cheap activation" priority="should">
       <statement>SKILL.md activates with a small token cost and loads detail progressively from references/.</statement>
@@ -190,6 +201,31 @@
       </req>
     </reqPackage>
 
+    <reqPackage id="PKG-CRAFT" title="Canonical authoring craft and propagation">
+      <req id="REQ-AUTHORING-CRAFT" type="PR" title="Canonical authoring-craft reference" priority="should" status="approved">
+        <statement>The skill SHALL provide, in references/authoring.md, a host-agnostic RQML authoring-craft reference covering document structure, statement quality, identity and lifecycle, and traceability, serving as the canonical source that other RQML skills and plugins vendor from rather than re-expressing.</statement>
+        <rationale>The craft was independently re-expressed and had diverged across rqml-claude and rqml-codex with no single home. Centralizing it here — where SKILL.md already delegates detail to references/ — gives the ecosystem one source of truth and reaches every skills-compatible host. See ADR-0009, DEC-CRAFT-HOME.</rationale>
+        <acceptance>
+          <criterion id="CRIT-AUTHORING-CRAFT">
+            <given>references/authoring.md in the skill</given>
+            <when>It is reviewed for content and host-neutrality</when>
+            <then>It covers document structure, statement quality, identity and lifecycle, and traceability, and contains no host-specific commands or plugin assumptions.</then>
+          </criterion>
+        </acceptance>
+      </req>
+      <req id="REQ-CRAFT-SYNC" type="PR" title="Automated craft propagation to plugins" priority="should" status="approved">
+        <statement>The skill SHALL provide an automated mechanism that propagates references/authoring.md to the rqml-claude and rqml-codex plugins — opening a refresh pull request on each when the canonical reference changes — so their vendored copies stay current without manual copying.</statement>
+        <rationale>The plugins vendor the craft for offline, in-context use (DEC-CRAFT-HOME); an automated sync keeps the single source of truth effective in practice, since otherwise the vendored copies drift. Propagation requires a cross-repo write credential provisioned for the rqml-org organization. See ADR-0009.</rationale>
+        <acceptance>
+          <criterion id="CRIT-CRAFT-SYNC">
+            <given>A merged change to references/authoring.md on the default branch</given>
+            <when>The sync mechanism runs</when>
+            <then>A pull request updating the vendored copy is opened on each of rqml-claude and rqml-codex, stamped with the source version.</then>
+          </criterion>
+        </acceptance>
+      </req>
+    </reqPackage>
+
     <reqPackage id="PKG-LICENSING" title="Licensing">
       <req id="REQ-LICENSE" type="OR" title="Apache-2.0" priority="must" status="approved">
         <statement>The skill SHALL be licensed under Apache-2.0 to match the upstream RQML standard and the Agent Skills standard.</statement>
@@ -244,6 +280,26 @@
       <from><locator><local id="REQ-FIVE-STAGE"/></locator></from>
       <to><locator><local id="GOAL-SPEC-FIRST"/></locator></to>
     </edge>
+    <edge id="E-CRAFT-HOME" type="satisfies" confidence="0.9">
+      <from><locator><local id="REQ-AUTHORING-CRAFT"/></locator></from>
+      <to><locator><local id="GOAL-CRAFT-HOME"/></locator></to>
+    </edge>
+    <edge id="E-CRAFT-DEC" type="dependsOn" confidence="1.0">
+      <from><locator><local id="REQ-AUTHORING-CRAFT"/></locator></from>
+      <to><locator><local id="DEC-CRAFT-HOME"/></locator></to>
+    </edge>
+    <edge id="E-SYNC-HOME" type="satisfies" confidence="0.85">
+      <from><locator><local id="REQ-CRAFT-SYNC"/></locator></from>
+      <to><locator><local id="GOAL-CRAFT-HOME"/></locator></to>
+    </edge>
+    <edge id="E-SYNC-DEC" type="dependsOn" confidence="1.0">
+      <from><locator><local id="REQ-CRAFT-SYNC"/></locator></from>
+      <to><locator><local id="DEC-CRAFT-HOME"/></locator></to>
+    </edge>
+    <edge id="E-SYNC-DRIFT" type="mitigates" confidence="0.8">
+      <from><locator><local id="REQ-CRAFT-SYNC"/></locator></from>
+      <to><locator><local id="RISK-CRAFT-DRIFT"/></locator></to>
+    </edge>
     <edge id="E-DELEGATION-DEC" type="dependsOn" confidence="1.0">
       <from><locator><local id="REQ-CLI-DELEGATION"/></locator></from>
       <to><locator><local id="DEC-CLI-DELEGATION"/></locator></to>
@@ -283,6 +339,14 @@
     <edge id="E-IMPL-LICENSE" type="implements">
       <from><locator><external uri="LICENSE" kind="code"/></locator></from>
       <to><locator><local id="REQ-LICENSE"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-AUTHORING-CRAFT" type="implements">
+      <from><locator><external uri="references/authoring.md" kind="code"/></locator></from>
+      <to><locator><local id="REQ-AUTHORING-CRAFT"/></locator></to>
+    </edge>
+    <edge id="E-IMPL-CRAFT-SYNC" type="implements">
+      <from><locator><external uri=".github/workflows/sync-craft.yml" kind="code"/></locator></from>
+      <to><locator><local id="REQ-CRAFT-SYNC"/></locator></to>
     </edge>
   </trace>
 </rqml>

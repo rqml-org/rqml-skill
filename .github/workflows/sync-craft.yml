@@ -1,0 +1,76 @@
+name: Sync authoring craft to plugins
+
+# Propagates references/authoring.md (the canonical RQML authoring craft) to the
+# rqml-claude and rqml-codex plugins by opening a refresh PR on each whenever the
+# reference changes on main. Implements REQ-CRAFT-SYNC (see ADR-0009).
+#
+# PREREQUISITE: a repository secret CRAFT_SYNC_TOKEN — a PAT or GitHub App token
+# with contents:write + pull-requests:write on rqml-org/rqml-claude and
+# rqml-org/rqml-codex. Until it is set, this workflow no-ops with a warning.
+
+on:
+  push:
+    branches: [main]
+    paths: ['references/authoring.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [rqml-claude, rqml-codex]
+    steps:
+      - id: guard
+        name: Require sync token
+        run: |
+          if [ -n "${{ secrets.CRAFT_SYNC_TOKEN }}" ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::CRAFT_SYNC_TOKEN not set — skipping craft sync. Provision an rqml-org PAT/App secret with PR access to the plugin repos to enable it."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout source (rqml-skill)
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Checkout ${{ matrix.target }}
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          repository: rqml-org/${{ matrix.target }}
+          token: ${{ secrets.CRAFT_SYNC_TOKEN }}
+          path: target
+
+      - name: Vendor craft and open PR
+        if: steps.guard.outputs.run == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.CRAFT_SYNC_TOKEN }}
+        run: |
+          set -euo pipefail
+          dest="target/skills/rqml-authoring/authoring.md"
+          mkdir -p "$(dirname "$dest")"
+          cp references/authoring.md "$dest"
+          cd target
+          if git diff --quiet -- skills/rqml-authoring/authoring.md; then
+            echo "${{ matrix.target }} already up to date — nothing to sync."
+            exit 0
+          fi
+          version="$(grep -oE 'canonical-version: [0-9]+' ../references/authoring.md | head -1 | grep -oE '[0-9]+')"
+          branch="craft-sync/authoring-v${version}"
+          git config user.name "rqml craft-sync"
+          git config user.email "noreply@rqml.org"
+          git checkout -b "$branch"
+          git add skills/rqml-authoring/authoring.md
+          git commit -m "chore: sync RQML authoring craft from rqml-skill (v${version})"
+          git push -f origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Sync RQML authoring craft (v${version})" \
+            --body "Automated sync of the canonical authoring craft from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill) \`references/authoring.md\` (canonical-version ${version}). Do not edit the vendored copy directly — change it upstream in rqml-skill." \
+            || gh pr edit "$branch" --base main \
+                 --title "Sync RQML authoring craft (v${version})" >/dev/null

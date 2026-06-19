@@ -16,8 +16,9 @@ When a decision is revisited, do not edit the existing ADR — write a new one t
 | [0006](0006-mirror-rqml-docs-instead-of-duplicating.md) | References mirror, not duplicate, the canonical RQML docs | Accepted |
 | [0007](0007-strictness-is-runtime-config.md) | Strictness level is read at runtime from project config | Superseded by [0008](0008-thin-skill-over-rqml-cli.md) |
 | [0008](0008-thin-skill-over-rqml-cli.md) | Rewrite the skill as a thin SKILL.md skill over @rqml/cli | Accepted |
+| [0009](0009-canonical-authoring-craft-home-and-sync.md) | rqml-skill is the canonical home for RQML authoring craft, synced to the plugins | Accepted |
 
-ADR-0008 supersedes ADR-0002, ADR-0003, ADR-0004, ADR-0005, and ADR-0007 (the retired Python-engine decisions), which are marked `Superseded by ADR-0008`. ADR-0001 (separate repo) and ADR-0006 (references mirror the docs) remain in force.
+ADR-0008 supersedes ADR-0002, ADR-0003, ADR-0004, ADR-0005, and ADR-0007 (the retired Python-engine decisions), which are marked `Superseded by ADR-0008`. ADR-0001 (separate repo) and ADR-0006 (references mirror the docs) remain in force. ADR-0009 refines ADR-0008 by giving the authoring craft a canonical home in `references/`.
 
 ## Cross-reference
 
