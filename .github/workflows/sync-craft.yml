@@ -66,14 +66,23 @@ jobs:
             exit 0
           fi
           version="$(grep -oE 'canonical-version: [0-9]+' ../references/authoring.md | head -1 | grep -oE '[0-9]+')"
-          branch="craft-sync/authoring-v${version}"
+          # Key the branch on the craft content, not the human-bumped version, so
+          # each distinct revision gets its own branch/PR and re-runs are
+          # idempotent — a force-push can never clobber an unrelated revision.
+          hash="$(sha256sum ../references/authoring.md | cut -c1-12)"
+          branch="craft-sync/authoring-${hash}"
           git config user.name "rqml craft-sync"
           git config user.email "noreply@rqml.org"
           git checkout -b "$branch"
-          git commit -m "chore: sync RQML authoring craft from rqml-skill (v${version})"
+          git commit -m "chore: sync RQML authoring craft from rqml-skill (v${version}, ${hash})"
           git push -f origin "$branch"
-          gh pr create --base main --head "$branch" \
-            --title "Sync RQML authoring craft (v${version})" \
-            --body "Automated sync of the canonical authoring craft from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill) \`references/authoring.md\` (canonical-version ${version}). Do not edit the vendored copy directly — change it upstream in rqml-skill." \
-            || gh pr edit "$branch" --base main \
-                 --title "Sync RQML authoring craft (v${version})" >/dev/null
+          title="Sync RQML authoring craft (v${version})"
+          body="Automated sync of the canonical authoring craft from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill) \`references/authoring.md\` (canonical-version ${version}, content ${hash}). Do not edit the vendored copy directly — change it upstream in rqml-skill and let craft-sync propagate."
+          # Explicit existence check so a genuine create failure is not masked as
+          # "already exists", and so an update refreshes both title and body.
+          existing="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --title "$title" --body "$body" >/dev/null
+          else
+            gh pr create --base main --head "$branch" --title "$title" --body "$body"
+          fi
