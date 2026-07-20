@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rqml xmlns="https://rqml.org/schema/2.1.0"
+<rqml xmlns="https://rqml.org/schema/2.2.0"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="https://rqml.org/schema/2.1.0 https://rqml.org/schema/rqml-2.1.0.xsd"
-      version="2.1.0" docId="RQML-SKILL-001" status="draft">
+      xsi:schemaLocation="https://rqml.org/schema/2.2.0 https://rqml.org/schema/rqml-2.2.0.xsd"
+      version="2.2.0" docId="RQML-SKILL-001" status="draft">
 
   <meta>
     <title>RQML Agent Skill</title>
@@ -259,121 +259,34 @@
   </verification>
 
   <trace>
-    <edge id="E-SKILLMD-PORT" type="satisfies" confidence="0.9">
-      <from><locator><local id="REQ-SKILL-MD"/></locator></from>
-      <to><locator><local id="GOAL-PORTABILITY"/></locator></to>
-    </edge>
-    <edge id="E-PORTABLE-PORT" type="satisfies" confidence="0.95">
-      <from><locator><local id="REQ-PORTABLE"/></locator></from>
-      <to><locator><local id="GOAL-PORTABILITY"/></locator></to>
-    </edge>
-    <edge id="E-TRIGGERS-PORT" type="satisfies" confidence="0.8">
-      <from><locator><local id="REQ-TRIGGERS"/></locator></from>
-      <to><locator><local id="GOAL-PORTABILITY"/></locator></to>
-    </edge>
-    <edge id="E-TOKEN-ACTIVATION" type="satisfies" confidence="0.9">
-      <from><locator><local id="REQ-TOKEN-BUDGET"/></locator></from>
-      <to><locator><local id="QGOAL-FAST-ACTIVATION"/></locator></to>
-    </edge>
-    <edge id="E-DELEGATION-CANONICAL" type="satisfies" confidence="0.95">
-      <from><locator><local id="REQ-CLI-DELEGATION"/></locator></from>
-      <to><locator><local id="GOAL-CANONICAL"/></locator></to>
-    </edge>
-    <edge id="E-NOENGINE-CANONICAL" type="satisfies" confidence="0.9">
-      <from><locator><local id="REQ-NO-ENGINE"/></locator></from>
-      <to><locator><local id="GOAL-CANONICAL"/></locator></to>
-    </edge>
-    <edge id="E-RUNTIME-LOWFRICTION" type="satisfies" confidence="0.85">
-      <from><locator><local id="REQ-CLI-RUNTIME"/></locator></from>
-      <to><locator><local id="GOAL-LOW-FRICTION"/></locator></to>
-    </edge>
-    <edge id="E-FIVESTAGE-SPECFIRST" type="satisfies" confidence="0.9">
-      <from><locator><local id="REQ-FIVE-STAGE"/></locator></from>
-      <to><locator><local id="GOAL-SPEC-FIRST"/></locator></to>
-    </edge>
-    <edge id="E-CRAFT-HOME" type="satisfies" confidence="0.9">
-      <from><locator><local id="REQ-AUTHORING-CRAFT"/></locator></from>
-      <to><locator><local id="GOAL-CRAFT-HOME"/></locator></to>
-    </edge>
-    <edge id="E-CRAFT-DEC" type="dependsOn" confidence="1.0">
-      <from><locator><local id="REQ-AUTHORING-CRAFT"/></locator></from>
-      <to><locator><local id="DEC-CRAFT-HOME"/></locator></to>
-    </edge>
-    <edge id="E-SYNC-HOME" type="satisfies" confidence="0.85">
-      <from><locator><local id="REQ-CRAFT-SYNC"/></locator></from>
-      <to><locator><local id="GOAL-CRAFT-HOME"/></locator></to>
-    </edge>
-    <edge id="E-SYNC-DEC" type="dependsOn" confidence="1.0">
-      <from><locator><local id="REQ-CRAFT-SYNC"/></locator></from>
-      <to><locator><local id="DEC-CRAFT-HOME"/></locator></to>
-    </edge>
-    <edge id="E-SYNC-DRIFT" type="mitigates" confidence="0.8">
-      <from><locator><local id="REQ-CRAFT-SYNC"/></locator></from>
-      <to><locator><local id="RISK-CRAFT-DRIFT"/></locator></to>
-    </edge>
-    <edge id="E-MONO-HOME" type="satisfies" confidence="0.9">
-      <from><locator><local id="REQ-MONOREPO-REF"/></locator></from>
-      <to><locator><local id="GOAL-CRAFT-HOME"/></locator></to>
-    </edge>
-    <edge id="E-MONO-DEC" type="dependsOn" confidence="1.0">
-      <from><locator><local id="REQ-MONOREPO-REF"/></locator></from>
-      <to><locator><local id="DEC-CRAFT-HOME"/></locator></to>
-    </edge>
-    <edge id="E-DELEGATION-DEC" type="dependsOn" confidence="1.0">
-      <from><locator><local id="REQ-CLI-DELEGATION"/></locator></from>
-      <to><locator><local id="DEC-CLI-DELEGATION"/></locator></to>
-    </edge>
-    <edge id="E-CLIVER-RISK" type="mitigates" confidence="0.8">
-      <from><locator><local id="REQ-CLI-RUNTIME"/></locator></from>
-      <to><locator><local id="RISK-CLI-VERSION"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-SKILL-MD" type="implements">
-      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-SKILL-MD"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-TRIGGERS" type="implements">
-      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-TRIGGERS"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-TOKEN-BUDGET" type="implements">
-      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-TOKEN-BUDGET"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-PORTABLE" type="implements">
-      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-PORTABLE"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-CLI-DELEGATION" type="implements">
-      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-CLI-DELEGATION"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-CLI-RUNTIME" type="implements">
-      <from><locator><external uri="SKILL.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-CLI-RUNTIME"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-FIVE-STAGE" type="implements">
-      <from><locator><external uri="references/usage.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-FIVE-STAGE"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-LICENSE" type="implements">
-      <from><locator><external uri="LICENSE" kind="code"/></locator></from>
-      <to><locator><local id="REQ-LICENSE"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-AUTHORING-CRAFT" type="implements">
-      <from><locator><external uri="references/authoring.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-AUTHORING-CRAFT"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-CRAFT-SYNC" type="implements">
-      <from><locator><external uri=".github/workflows/sync-craft.yml" kind="code"/></locator></from>
-      <to><locator><local id="REQ-CRAFT-SYNC"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-CRAFT-VERSION" type="implements">
-      <from><locator><external uri=".github/workflows/craft-version-check.yml" kind="code"/></locator></from>
-      <to><locator><local id="REQ-CRAFT-SYNC"/></locator></to>
-    </edge>
-    <edge id="E-IMPL-MONOREPO-REF" type="implements">
-      <from><locator><external uri="references/monorepo.md" kind="code"/></locator></from>
-      <to><locator><local id="REQ-MONOREPO-REF"/></locator></to>
-    </edge>
+    <edge id="E-SKILLMD-PORT" type="satisfies" from="REQ-SKILL-MD" to="GOAL-PORTABILITY" confidence="0.9"/>
+    <edge id="E-PORTABLE-PORT" type="satisfies" from="REQ-PORTABLE" to="GOAL-PORTABILITY" confidence="0.95"/>
+    <edge id="E-TRIGGERS-PORT" type="satisfies" from="REQ-TRIGGERS" to="GOAL-PORTABILITY" confidence="0.8"/>
+    <edge id="E-TOKEN-ACTIVATION" type="satisfies" from="REQ-TOKEN-BUDGET" to="QGOAL-FAST-ACTIVATION" confidence="0.9"/>
+    <edge id="E-DELEGATION-CANONICAL" type="satisfies" from="REQ-CLI-DELEGATION" to="GOAL-CANONICAL" confidence="0.95"/>
+    <edge id="E-NOENGINE-CANONICAL" type="satisfies" from="REQ-NO-ENGINE" to="GOAL-CANONICAL" confidence="0.9"/>
+    <edge id="E-RUNTIME-LOWFRICTION" type="satisfies" from="REQ-CLI-RUNTIME" to="GOAL-LOW-FRICTION" confidence="0.85"/>
+    <edge id="E-FIVESTAGE-SPECFIRST" type="satisfies" from="REQ-FIVE-STAGE" to="GOAL-SPEC-FIRST" confidence="0.9"/>
+    <edge id="E-CRAFT-HOME" type="satisfies" from="REQ-AUTHORING-CRAFT" to="GOAL-CRAFT-HOME" confidence="0.9"/>
+    <edge id="E-CRAFT-DEC" type="dependsOn" from="REQ-AUTHORING-CRAFT" to="DEC-CRAFT-HOME" confidence="1"/>
+    <edge id="E-SYNC-HOME" type="satisfies" from="REQ-CRAFT-SYNC" to="GOAL-CRAFT-HOME" confidence="0.85"/>
+    <edge id="E-SYNC-DEC" type="dependsOn" from="REQ-CRAFT-SYNC" to="DEC-CRAFT-HOME" confidence="1"/>
+    <edge id="E-SYNC-DRIFT" type="mitigates" from="REQ-CRAFT-SYNC" to="RISK-CRAFT-DRIFT" confidence="0.8"/>
+    <edge id="E-MONO-HOME" type="satisfies" from="REQ-MONOREPO-REF" to="GOAL-CRAFT-HOME" confidence="0.9"/>
+    <edge id="E-MONO-DEC" type="dependsOn" from="REQ-MONOREPO-REF" to="DEC-CRAFT-HOME" confidence="1"/>
+    <edge id="E-DELEGATION-DEC" type="dependsOn" from="REQ-CLI-DELEGATION" to="DEC-CLI-DELEGATION" confidence="1"/>
+    <edge id="E-CLIVER-RISK" type="mitigates" from="REQ-CLI-RUNTIME" to="RISK-CLI-VERSION" confidence="0.8"/>
+    <edge id="E-IMPL-SKILL-MD" type="implements" from="./SKILL.md" fromKind="code" to="REQ-SKILL-MD"/>
+    <edge id="E-IMPL-TRIGGERS" type="implements" from="./SKILL.md" fromKind="code" to="REQ-TRIGGERS"/>
+    <edge id="E-IMPL-TOKEN-BUDGET" type="implements" from="./SKILL.md" fromKind="code" to="REQ-TOKEN-BUDGET"/>
+    <edge id="E-IMPL-PORTABLE" type="implements" from="./SKILL.md" fromKind="code" to="REQ-PORTABLE"/>
+    <edge id="E-IMPL-CLI-DELEGATION" type="implements" from="./SKILL.md" fromKind="code" to="REQ-CLI-DELEGATION"/>
+    <edge id="E-IMPL-CLI-RUNTIME" type="implements" from="./SKILL.md" fromKind="code" to="REQ-CLI-RUNTIME"/>
+    <edge id="E-IMPL-FIVE-STAGE" type="implements" from="references/usage.md" fromKind="code" to="REQ-FIVE-STAGE"/>
+    <edge id="E-IMPL-LICENSE" type="implements" from="./LICENSE" fromKind="code" to="REQ-LICENSE"/>
+    <edge id="E-IMPL-AUTHORING-CRAFT" type="implements" from="references/authoring.md" fromKind="code" to="REQ-AUTHORING-CRAFT"/>
+    <edge id="E-IMPL-CRAFT-SYNC" type="implements" from=".github/workflows/sync-craft.yml" fromKind="code" to="REQ-CRAFT-SYNC"/>
+    <edge id="E-IMPL-CRAFT-VERSION" type="implements" from=".github/workflows/craft-version-check.yml" fromKind="code" to="REQ-CRAFT-SYNC"/>
+    <edge id="E-IMPL-MONOREPO-REF" type="implements" from="references/monorepo.md" fromKind="code" to="REQ-MONOREPO-REF"/>
   </trace>
 </rqml>
