@@ -19,7 +19,7 @@ npm i -g @rqml/cli      # install the `rqml` command, or…
 npx @rqml/cli <command> # …run on demand without installing
 ```
 
-Requires **`@rqml/cli` ≥ 0.7.0** (for `lint`, `check --workspace`, and spec discovery). If neither `rqml` nor Node is available, tell the developer — never hand-author or "eyeball" validation.
+Requires **`@rqml/cli` ≥ 0.9.1** (for `migrate`, all-type `link`, `lint`, `check --workspace`, and spec discovery; 0.9.1 is the floor because on 0.9.0 `rqml migrate --help` rewrote the discovered spec instead of printing help). If neither `rqml` nor Node is available, tell the developer — never hand-author or "eyeball" validation.
 
 ## The five-stage process
 
@@ -45,10 +45,11 @@ rqml impact <ID>        # what a change to <ID> affects, transitively
 rqml overview [path]    # readable projection (--section / --id to scope)
 rqml matrix [path]      # traceability matrix: status, goals, code, tests
 rqml skeleton <kind>    # schema-valid snippet: req | edge | testCase | stateMachine
-rqml link <ID> <uri>    # record an implements edge (+ --type verifiedBy for tests)
+rqml link <from> <to>   # record any trace edge + drift baseline (--type, default implements)
 rqml approve <ID>       # transition a requirement's status (default approved)
 rqml gate               # block implementing non-approved requirements
 rqml check --workspace  # gate every spec in a monorepo, one aggregated exit code
+rqml migrate [path]     # rewrite a spec to the current schema version (--dry-run)
 ```
 
 `rqml` resolves the governing spec automatically by walking up from the working directory to the nearest `requirements.rqml` (or the sole `*.rqml`); pass a path or `--base-dir <dir>` to override. `--strictness relaxed|standard|strict|certified` scales how aggressively `check`/`lint` report.
@@ -57,7 +58,8 @@ rqml check --workspace  # gate every spec in a monorepo, one aggregated exit cod
 
 - **Validate after every edit** (`rqml validate`); never leave a spec invalid.
 - **Finish with `rqml check`** — it must exit 0 at the project's strictness.
-- **Never hand-edit trace edges** — use `rqml link` (it also records the drift baseline).
+- **Never hand-edit trace edges** — use `rqml link` for any of the fifteen types (it emits the right serialization for the spec's schema version and records the drift baseline).
+- **Never hand-upgrade a schema version** — use `rqml migrate`.
 - **Never reimplement the engine** — every check goes through `rqml`.
 
 ## More detail

@@ -1,6 +1,6 @@
 # Usage: the five-stage workflow
 
-Every operation runs through the `rqml` CLI (`@rqml/cli` ≥ 0.7.0). Install with `npm i -g @rqml/cli`, or run on demand with `npx @rqml/cli`. The skill reimplements nothing — results are exactly the canonical engine's.
+Every operation runs through the `rqml` CLI (`@rqml/cli` ≥ 0.9.1). Install with `npm i -g @rqml/cli`, or run on demand with `npx @rqml/cli`. The skill reimplements nothing — results are exactly the canonical engine's.
 
 ## Resolve the spec
 
@@ -24,7 +24,7 @@ Break the approved requirements into ordered stages in `.rqml/plan.md`.
 ## Code — implement with traces
 
 - `rqml show <ID>` to read a requirement with its trace neighborhood; `rqml impact <ID>` before changing anything that exists.
-- After implementing: `rqml link <ID> path/to/code.ts` records the `implements` edge and the drift baseline. Never hand-edit trace XML.
+- After implementing: `rqml link <ID> path/to/code.ts` records the `implements` edge and the drift baseline. Never hand-edit trace XML. `rqml link <from> <to> --type <type>` records any of the fifteen trace types, not just implements/verifiedBy.
 
 ## Verify — prove coverage
 
