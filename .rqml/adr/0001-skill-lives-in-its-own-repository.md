@@ -3,7 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-REPO`
-- **Related requirements**: `REQ-LAYOUT`, `REQ-LICENSE`
+- **Related requirements**: `REQ-SKILL-MD`, `REQ-LICENSE`
 
 ## Context
 
