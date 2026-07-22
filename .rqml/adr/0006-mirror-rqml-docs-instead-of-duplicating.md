@@ -3,7 +3,7 @@
 - **Status**: Accepted
 - **Date**: 2026-05-10
 - **Decision ID** (in `requirements.rqml`): `DEC-MIRROR`
-- **Related requirements**: `REQ-LAYOUT`, `REQ-TOKEN-BUDGET`
+- **Related requirements**: `REQ-AUTHORING-CRAFT`, `REQ-TOKEN-BUDGET`
 
 ## Context
 
