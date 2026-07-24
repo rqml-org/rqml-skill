@@ -1,0 +1,29 @@
+name: Craft example check
+
+# The markup examples in references/authoring.md are what agents copy when
+# `rqml skeleton` has no kind for the element they need, and the plugins vendor
+# the file verbatim — so an invalid shape here propagates to every host. This
+# assembles the examples into one document and validates it against the schema
+# (REQ-CRAFT-ACTIVITIES / CRIT-CRAFT-EXAMPLES).
+
+on:
+  pull_request:
+    paths: ['references/authoring.md', 'scripts/check-craft-examples.mjs']
+  push:
+    branches: [main]
+    paths: ['references/authoring.md', 'scripts/check-craft-examples.mjs']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  examples-valid:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Assemble and validate the markup examples
+        run: node scripts/check-craft-examples.mjs

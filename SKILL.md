@@ -27,17 +27,22 @@ RQML work follows **Spec → Design → Plan → Code → Verify** (https://rqml
 
 | Stage | Do | Commands |
 |-------|----|----------|
-| **Spec** | Capture intent as requirements with given/when/then acceptance criteria; only `approved` ones drive code | `rqml skeleton req`, `rqml validate`, `rqml approve <ID>` |
+| **Spec** | Elicit the goal, analyse the tensions, then specify: requirements with given/when/then acceptance criteria; only `approved` ones drive code | `rqml skeleton req`, `rqml validate`, `rqml approve <ID>` |
 | **Design** | Record significant decisions as ADRs in `.rqml/adr/` (immutable; supersede, don't edit) | *(write the ADR)* |
 | **Plan** | Break approved requirements into stages in `.rqml/plan.md` | *(write the plan)* |
 | **Code** | Implement approved reqs; record trace links | `rqml show <ID>`, `rqml impact <ID>`, `rqml link <ID> <path>` |
-| **Verify** | Prove coverage, catch drift; the gate must pass | `rqml link <ID> <test> --type verifiedBy`, `rqml check` |
+| **Verify** | Prove trace coverage, re-check suspect links, verify requirements with tests | `rqml link <ID> <test> --type verifiedBy`, `rqml check` |
+
+Inside those stages you are doing six requirements-engineering activities —
+elicitation, analysis, specification, validation, verification, management.
+Each one lands in a different part of the document and raises a different
+finding when skipped; `references/authoring.md` maps them.
 
 ## Command reference
 
 ```bash
-rqml validate [path]    # XML well-formedness, XSD, referential integrity
-rqml check [path]       # the gate: validation + coverage + drift (exit 0 = pass)
+rqml validate [path]    # document validation: well-formedness, XSD, referential integrity
+rqml check [path]       # document validation + trace coverage + drift (exit 0 = pass)
 rqml lint [path]        # semantic lint; severity scales with --strictness
 rqml status [path]      # coverage + lint summary
 rqml show <ID>          # one artifact with its trace neighborhood
@@ -56,15 +61,15 @@ rqml migrate [path]     # rewrite a spec to the current schema version (--dry-ru
 
 ## Non-negotiables
 
-- **Validate after every edit** (`rqml validate`); never leave a spec invalid.
-- **Finish with `rqml check`** — it must exit 0 at the project's strictness.
-- **Never hand-edit trace edges** — use `rqml link` for any of the fifteen types (it emits the right serialization for the spec's schema version and records the drift baseline).
+- **Validate after every edit** (`rqml validate`); never leave a spec invalid. This checks the *document*; it is not the stakeholder validation that `approved` records.
+- **Finish with `rqml check`** — it must exit 0 at the project's strictness. Report what each finding names — an unsatisfied goal, an unverified requirement, a suspect link — not whether the gate is red or green.
+- **Never hand-edit trace edges** — use `rqml link` for any of the fifteen types, enumerated in `references/authoring.md` (it emits the right serialization for the spec's schema version and records the drift baseline).
 - **Never hand-upgrade a schema version** — use `rqml migrate`.
 - **Never reimplement the engine** — every check goes through `rqml`.
 
 ## More detail
 
-- `references/authoring.md` — the canonical RQML authoring craft (document structure, statement quality, identity, traceability).
+- `references/authoring.md` — the canonical RQML authoring craft: the six requirements-engineering activities and the markup each lands in, when to reach for a tag, all fifteen trace types, statement quality, identity, traceability.
 - `references/monorepo.md` — which spec governs a file in a monorepo, and how discovery works (parent directories vs subdirectories).
 - `references/usage.md` — the five-stage workflow, command by command.
 - `references/activation.md` — when to activate and the trigger cues.
