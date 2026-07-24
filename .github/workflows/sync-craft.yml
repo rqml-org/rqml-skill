@@ -67,6 +67,31 @@ jobs:
             echo "${{ matrix.target }} already up to date — nothing to sync."
             exit 0
           fi
+
+          # Re-pin the drift baseline for the files we just replaced. The target's
+          # spec links its vendored copy with an implements edge, so a sync that
+          # only copies the file lands a changed-implementation error on the
+          # target's main — a sanctioned change reported as drift, on every sync.
+          #
+          # Scoped deliberately to the two paths this job wrote: refreshing every
+          # drifted edge would launder unrelated drift, and a baseline re-pinned
+          # without reading is worse than a red gate.
+          # `check` exits 2 when it finds drift — which is the case we are here to
+          # handle — so its status must not abort the job under `set -e`.
+          drift_json="$(npx -y @rqml/cli check --json 2>/dev/null || true)"
+          edges="$(printf '%s' "$drift_json" | jq -r '
+            .drift[]? | select(.uri | endswith("skills/rqml-authoring/authoring.md")
+                            or endswith("skills/rqml-authoring/monorepo.md")) | .edgeId' 2>/dev/null || true)"
+          refreshed=""
+          for edge in $edges; do
+            npx -y @rqml/cli link --refresh "$edge"
+            refreshed="${refreshed} \`${edge}\`"
+          done
+          if [ -n "$refreshed" ]; then
+            git add .rqml
+            echo "re-pinned:${refreshed}"
+          fi
+
           ver() { grep -oE 'canonical-version: [0-9]+' "../references/$1" | head -1 | grep -oE '[0-9]+'; }
           # Key the branch on the combined content of both references, not the
           # human-bumped versions, so each distinct revision gets its own branch/PR
@@ -80,6 +105,11 @@ jobs:
           git push -f origin "$branch"
           title="Sync RQML reference docs"
           body="Automated sync of the canonical RQML references from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill): \`authoring.md\` (canonical-version $(ver authoring.md)) and \`monorepo.md\` (canonical-version $(ver monorepo.md)) — content ${hash}. Do not edit the vendored copies directly — change them upstream in rqml-skill and let craft-sync propagate."
+          if [ -n "$refreshed" ]; then
+            body="${body}
+
+Drift baselines re-pinned for the synced files:${refreshed}. The vendored copies are byte-identical to the canonical references, so \`rqml check\` should pass on this branch — read the diff, not just the verdict."
+          fi
           # Explicit existence check so a genuine create failure is not masked as
           # "already exists", and so an update refreshes both title and body.
           existing="$(gh pr list --head "$branch" --state open --json number --jq '.[0].number // empty')"

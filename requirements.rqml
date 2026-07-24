@@ -251,6 +251,17 @@
           </criterion>
         </acceptance>
       </req>
+      <req id="REQ-CRAFT-SYNC-REPIN" type="PR" title="The sync leaves the receiving repository's gate passing" priority="must" status="draft">
+        <statement>The reference propagation mechanism SHALL re-record the drift baseline for every trace edge that points at a file it replaced, so that the pull request it opens leaves the receiving repository's rqml check passing. It SHALL restrict that re-recording to the paths it wrote, and SHALL name the re-pinned edges in the pull request body.</statement>
+        <rationale>A plugin links its vendored copy of a reference with an implements edge, so a sync that only copies the file lands a changed-implementation error on the receiving repository's default branch — a sanctioned change reported as drift, on every sync, in a pull request whose own CI fails. This happened on both rqml-claude and rqml-codex the first time the reorganized authoring reference propagated. Scoping the re-pin to the written paths is the point: refreshing every drifted edge would launder unrelated drift, and a baseline re-pinned without anyone reading the change is worse than a red gate. Naming the edges in the body keeps the re-pin reviewable rather than silent.</rationale>
+        <acceptance>
+          <criterion id="CRIT-CRAFT-SYNC-REPIN">
+            <given>A plugin whose spec links a vendored reference with an implements edge, and a changed canonical reference</given>
+            <when>The sync mechanism runs and opens its pull request</when>
+            <then>rqml check passes on the pull request's branch, the baseline change is limited to edges pointing at the synced paths, and the body names each re-pinned edge.</then>
+          </criterion>
+        </acceptance>
+      </req>
       <req id="REQ-MONOREPO-REF" type="PR" title="Canonical monorepo scope reference" priority="should" status="approved">
         <statement>The skill SHALL provide, in references/monorepo.md, a host-agnostic statement of the RQML monorepo spec-scope and discovery model — one spec per project; a spec governs its own directory and all of its subdirectories but never a parent directory; the governing spec for a file is the nearest enclosing one; cross-spec references are made only through trace edges that address the other document, never by spec-file placement — described in parent-directory/subdirectory terms (no tree analogies), serving as the canonical source that plugins vendor from rather than re-expressing. The statement of the principle SHALL NOT be tied to one schema generation's serialization of an endpoint.</statement>
         <rationale>Monorepo scope and discovery were undocumented in the skill and stated incorrectly in the plugins; centralizing the model here (following DEC-CRAFT-HOME) gives one source of truth, propagated to the plugins by the same reference sync. See ADR-0009, DEC-CRAFT-HOME.</rationale>
@@ -321,5 +332,8 @@
     <edge id="E-IMPL-CRAFT-VOCABULARY" type="implements" from="./SKILL.md" fromKind="code" to="REQ-CRAFT-VOCABULARY" status="draft" createdBy="rqml"/>
     <edge id="E-IMPL-CRAFT-VOCABULARY-2" type="implements" from="references/usage.md" fromKind="code" to="REQ-CRAFT-VOCABULARY" status="draft" createdBy="rqml"/>
     <edge id="E-VER-CRAFT-ACTIVITIES" type="verifiedBy" from="REQ-CRAFT-ACTIVITIES" to="scripts/check-craft-examples.mjs" toKind="test" status="draft" createdBy="rqml"/>
+    <edge id="E-SAT-CRAFT-SYNC-REPIN-GOAL-CRAFT-HOME" type="satisfies" from="REQ-CRAFT-SYNC-REPIN" to="GOAL-CRAFT-HOME" status="draft" createdBy="rqml"/>
+    <edge id="E-MIT-CRAFT-SYNC-REPIN-RISK-CRAFT-DRIFT" type="mitigates" from="REQ-CRAFT-SYNC-REPIN" to="RISK-CRAFT-DRIFT" status="draft" createdBy="rqml"/>
+    <edge id="E-IMPL-CRAFT-SYNC-REPIN" type="implements" from=".github/workflows/sync-craft.yml" fromKind="code" to="REQ-CRAFT-SYNC-REPIN" status="draft" createdBy="rqml"/>
   </trace>
 </rqml>
