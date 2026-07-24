@@ -213,7 +213,7 @@
           </criterion>
         </acceptance>
       </req>
-      <req id="REQ-CRAFT-ACTIVITIES" type="PR" title="Craft reference is organized by requirements-engineering activity" priority="should" status="draft">
+      <req id="REQ-CRAFT-ACTIVITIES" type="PR" title="Craft reference is organized by requirements-engineering activity" priority="should" status="approved">
         <statement>The authoring-craft reference SHALL organize the craft around the six requirements-engineering activities of ISO/IEC/IEEE 29148 — elicitation, analysis, specification, validation, verification, management — mapping each activity to the RQML markup it lands in and to the rqml finding that appears when it is skipped; it SHALL state plainly which activities no check covers, SHALL enumerate all fifteen trace types with their direction, and SHALL carry schema-valid markup examples for the elements rqml skeleton does not emit.</statement>
         <rationale>Agent tag usage tracks what the toolchain writes and reads: the elements with a write affordance and a gate read-back are used heavily, and those without are replaced by prose in notes and rationale, where check, matrix and impact cannot see them. Naming the activity at the moment an agent is in it supplies the missing prompt, and the markup examples remove the obstacle that "never invent element shapes" otherwise creates for every element skeleton does not cover. Stating where no check exists keeps the reference honest rather than implying enforcement it does not have.</rationale>
         <acceptance>
@@ -229,7 +229,7 @@
           </criterion>
         </acceptance>
       </req>
-      <req id="REQ-CRAFT-VOCABULARY" type="PR" title="Agent-facing craft speaks requirements-engineering vocabulary" priority="should" status="draft">
+      <req id="REQ-CRAFT-VOCABULARY" type="PR" title="Agent-facing craft speaks requirements-engineering vocabulary" priority="should" status="approved">
         <statement>The skill's agent-facing text SHALL name findings by the evidence they identify — an unsatisfied goal, an unverified requirement, a suspect link — rather than by the state of the gate, and SHALL report the mechanism as the mechanism: whether rqml check exits 0. It SHALL distinguish document validation, which rqml validate performs, from requirements validation in the ISO/IEC/IEEE 29148 sense, which a person records by approving a requirement, and SHALL NOT describe requirements as validated on the strength of a passing check.</statement>
         <rationale>The engine's own finding messages already name the missing artifact; the gate-colour vocabulary agents adopt comes from framing text the skill and plugins add on top of it. Naming the missing artifact instead directs the next action, whereas naming the gate's colour invites clearing the signal. The distinction between document validation and requirements validation must be stated explicitly because the rqml validate command name collides with the standard's sense of the word, so importing the standard vocabulary without it would license an over-claim no tool can support.</rationale>
         <acceptance>
