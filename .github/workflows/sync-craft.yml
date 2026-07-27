@@ -2,12 +2,19 @@ name: Sync RQML reference docs to plugins
 
 # Propagates the canonical RQML reference docs — references/authoring.md (authoring
 # craft) and references/monorepo.md (monorepo spec-scope & discovery) — to the
-# rqml-claude and rqml-codex plugins by opening a refresh PR on each whenever either
-# reference changes on main. Implements REQ-CRAFT-SYNC (see ADR-0009).
+# rqml-claude, rqml-codex and rqml-opencode plugins by opening a refresh PR on each
+# whenever either reference changes on main. Implements REQ-CRAFT-SYNC (see ADR-0009).
+#
+# Each target declares its own vendored destination: the Claude and Codex plugins
+# carry the references as a skill directory, opencode as plain instruction files.
+# A new plugin must be added to the matrix below with its own `dest`, or upstream
+# craft changes will silently never reach it.
 #
 # PREREQUISITE: a repository secret CRAFT_SYNC_TOKEN — a PAT or GitHub App token
-# with contents:write + pull-requests:write on rqml-org/rqml-claude and
-# rqml-org/rqml-codex. Until it is set, this workflow no-ops with a warning.
+# with contents:write + pull-requests:write on every repository in the matrix
+# (rqml-org/rqml-claude, rqml-org/rqml-codex, rqml-org/rqml-opencode). Until it is
+# set, this workflow no-ops with a warning; if it is set but lacks access to one
+# target, only that target's job fails (fail-fast is off).
 
 on:
   push:
@@ -24,7 +31,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [rqml-claude, rqml-codex]
+        include:
+          - target: rqml-claude
+            dest: skills/rqml-authoring
+          - target: rqml-codex
+            dest: skills/rqml-authoring
+          - target: rqml-opencode
+            dest: craft
     steps:
       - id: guard
         name: Require sync token
@@ -52,14 +65,16 @@ jobs:
         if: steps.guard.outputs.run == 'true'
         env:
           GH_TOKEN: ${{ secrets.CRAFT_SYNC_TOKEN }}
+          # Where this target vendors the references — see the matrix above.
+          DEST: ${{ matrix.dest }}
         run: |
           set -euo pipefail
-          mkdir -p target/skills/rqml-authoring
+          mkdir -p "target/$DEST"
           for f in authoring.md monorepo.md; do
-            cp "references/$f" "target/skills/rqml-authoring/$f"
+            cp "references/$f" "target/$DEST/$f"
           done
           cd target
-          git add skills/rqml-authoring/authoring.md skills/rqml-authoring/monorepo.md
+          git add "$DEST/authoring.md" "$DEST/monorepo.md"
           # Stage first, then compare the index to HEAD: this detects brand-new
           # (untracked) vendored files as well as modified ones. `git diff --quiet`
           # alone ignores untracked files and would skip the initial bootstrap.
@@ -79,9 +94,9 @@ jobs:
           # `check` exits 2 when it finds drift — which is the case we are here to
           # handle — so its status must not abort the job under `set -e`.
           drift_json="$(npx -y @rqml/cli check --json 2>/dev/null || true)"
-          edges="$(printf '%s' "$drift_json" | jq -r '
-            .drift[]? | select(.uri | endswith("skills/rqml-authoring/authoring.md")
-                            or endswith("skills/rqml-authoring/monorepo.md")) | .edgeId' 2>/dev/null || true)"
+          edges="$(printf '%s' "$drift_json" | jq -r --arg dest "$DEST" '
+            .drift[]? | select(.uri | endswith($dest + "/authoring.md")
+                            or endswith($dest + "/monorepo.md")) | .edgeId' 2>/dev/null || true)"
           refreshed=""
           for edge in $edges; do
             npx -y @rqml/cli link --refresh "$edge"
@@ -106,9 +121,13 @@ jobs:
           title="Sync RQML reference docs"
           body="Automated sync of the canonical RQML references from [rqml-org/rqml-skill](https://github.com/rqml-org/rqml-skill): \`authoring.md\` (canonical-version $(ver authoring.md)) and \`monorepo.md\` (canonical-version $(ver monorepo.md)) — content ${hash}. Do not edit the vendored copies directly — change them upstream in rqml-skill and let craft-sync propagate."
           if [ -n "$refreshed" ]; then
+            # Keep the continuation lines indented to the block scalar: a line at
+            # column 0 terminates the `run: |` block and makes the whole workflow
+            # unparseable. YAML strips this indentation back off, so the bash
+            # string still gets the paragraph break at column 0.
             body="${body}
 
-Drift baselines re-pinned for the synced files:${refreshed}. The vendored copies are byte-identical to the canonical references, so \`rqml check\` should pass on this branch — read the diff, not just the verdict."
+          Drift baselines re-pinned for the synced files:${refreshed}. The vendored copies are byte-identical to the canonical references, so \`rqml check\` should pass on this branch — read the diff, not just the verdict."
           fi
           # Explicit existence check so a genuine create failure is not masked as
           # "already exists", and so an update refreshes both title and body.

@@ -241,13 +241,13 @@
         </acceptance>
       </req>
       <req id="REQ-CRAFT-SYNC" type="PR" title="Automated reference propagation to plugins" priority="should" status="approved">
-        <statement>The skill SHALL provide an automated mechanism that propagates its canonical references (references/authoring.md and references/monorepo.md) to the rqml-claude and rqml-codex plugins — opening a refresh pull request on each when either reference changes — so their vendored copies stay current without manual copying.</statement>
-        <rationale>The plugins vendor the references for offline, in-context use (DEC-CRAFT-HOME); an automated sync keeps the single source of truth effective in practice, since otherwise the vendored copies drift. Propagation requires a cross-repo write credential provisioned for the rqml-org organization. See ADR-0009.</rationale>
+        <statement>The skill SHALL provide an automated mechanism that propagates its canonical references (references/authoring.md and references/monorepo.md) to every plugin that vendors them — currently rqml-claude, rqml-codex and rqml-opencode — opening a refresh pull request on each when either reference changes, so their vendored copies stay current without manual copying. Because the plugins do not agree on where the vendored copies live, the mechanism SHALL carry a per-plugin destination path rather than assume one shared layout.</statement>
+        <rationale>The plugins vendor the references for offline, in-context use (DEC-CRAFT-HOME); an automated sync keeps the single source of truth effective in practice, since otherwise the vendored copies drift. Propagation requires a cross-repo write credential provisioned for the rqml-org organization. rqml-opencode was added to the ecosystem after this mechanism was written and was omitted from its target list for a month, during which its vendored authoring.md silently fell a canonical-version behind while its own drift guard reported the divergence with nothing to repair it — hence the obligation to cover every vendoring plugin, stated as a set rather than as two names. It also vendors under craft/ rather than skills/rqml-authoring/, which is why the destination is per-plugin. See ADR-0009.</rationale>
         <acceptance>
           <criterion id="CRIT-CRAFT-SYNC">
             <given>A merged change to a canonical reference (references/authoring.md or references/monorepo.md) on the default branch</given>
             <when>The sync mechanism runs</when>
-            <then>A pull request updating the vendored copies is opened on each of rqml-claude and rqml-codex.</then>
+            <then>A pull request updating the vendored copies is opened on each plugin that vendors the references — rqml-claude, rqml-codex and rqml-opencode — writing each one's copies to that plugin's own vendored path.</then>
           </criterion>
         </acceptance>
       </req>
