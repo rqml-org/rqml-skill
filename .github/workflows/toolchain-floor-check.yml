@@ -1,0 +1,37 @@
+name: Toolchain floor check
+
+# SKILL.md states a minimum @rqml/cli version, and a skill is prose an agent
+# reads offline — so the number has to appear literally and cannot simply be
+# replaced by a pointer. That makes it a second copy of a value owned elsewhere.
+# This guard keeps the copy honest: the vendored declaration must match the one
+# published at rqml.org/toolchain-floor.json, and the prose must state that
+# floor and no other (REQ-CLI-RUNTIME / CRIT-RUNTIME-FLOOR-DERIVED).
+#
+# Runs on main pushes as well as pull requests: the floor moves upstream, not
+# here, so this repository can go stale without anyone opening a PR against it.
+
+on:
+  pull_request:
+    paths: ['SKILL.md', 'toolchain-floor.json', 'scripts/check-toolchain-floor.mjs']
+  push:
+    branches: [main]
+    paths: ['SKILL.md', 'toolchain-floor.json', 'scripts/check-toolchain-floor.mjs']
+  schedule:
+    # Weekly, so a floor raised upstream surfaces here without waiting for a
+    # change to this repository.
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  floor-derived:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: SKILL.md states the ecosystem floor
+        run: node scripts/check-toolchain-floor.mjs

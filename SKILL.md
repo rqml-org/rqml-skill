@@ -19,7 +19,12 @@ npm i -g @rqml/cli      # install the `rqml` command, or…
 npx @rqml/cli <command> # …run on demand without installing
 ```
 
-Requires **`@rqml/cli` ≥ 0.9.1** (for `migrate`, all-type `link`, `lint`, `check --workspace`, and spec discovery; 0.9.1 is the floor because on 0.9.0 `rqml migrate --help` rewrote the discovered spec instead of printing help). If neither `rqml` nor Node is available, tell the developer — never hand-author or "eyeball" validation.
+Requires **`@rqml/cli` ≥ 0.9.1** — for `migrate`, all-type `link`, `lint`, `check --workspace`, and spec discovery. If neither `rqml` nor Node is available, tell the developer — never hand-author or "eyeball" validation.
+
+<!-- The floor above is the ecosystem declaration (rqml.org/toolchain-floor.json),
+     vendored as toolchain-floor.json and checked in CI. Do not edit it by hand;
+     change it upstream in rqml-org/rqml and re-vendor. -->
+
 
 ## The five-stage process
 
