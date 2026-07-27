@@ -187,12 +187,26 @@
         </acceptance>
       </req>
       <req id="REQ-CLI-RUNTIME" type="IR" title="CLI invocation and version floor" priority="must" status="approved">
-        <statement>The skill SHALL invoke the toolchain as `rqml` or `npx @rqml/cli` with no build step, and SHALL state a minimum supported @rqml/cli version covering the commands it documents (including lint, check --workspace, and spec discovery).</statement>
+        <statement>The skill SHALL invoke the toolchain as `rqml` or `npx @rqml/cli` with no build step, and SHALL state the minimum supported @rqml/cli version derived from the ecosystem declaration published at https://rqml.org/toolchain-floor.json — vendored here and checked mechanically — rather than choosing a minimum of its own.</statement>
+        <rationale>
+          The skill is prose an agent reads, often with no network, so the number
+          has to appear literally; it cannot be replaced by a pointer. That makes
+          it unavoidably a second copy of a value owned upstream, and a second
+          copy agrees with the original only until the floor first moves. It has
+          already been the divergent one: this file said 0.9.1 while rqml-claude
+          declared 0.5.0 and rqml-opencode targeted 0.1.0. Keeping the copy is
+          therefore conditional on checking it.
+        </rationale>
         <acceptance>
           <criterion id="CRIT-RUNTIME-VERSION">
             <given>A host with @rqml/cli at or above the stated minimum version</given>
             <when>The agent runs a command the skill documents</when>
             <then>The command is available and executes through @rqml/cli.</then>
+          </criterion>
+          <criterion id="CRIT-RUNTIME-FLOOR-DERIVED">
+            <given>The minimum stated in SKILL.md, the vendored declaration, and the published canonical</given>
+            <when>CI compares them</when>
+            <then>The prose states the vendored floor and no other, and the vendored copy matches the published one — the latter skipped rather than failed when the canonical source is unreachable.</then>
           </criterion>
         </acceptance>
       </req>
@@ -335,5 +349,7 @@
     <edge id="E-SAT-CRAFT-SYNC-REPIN-GOAL-CRAFT-HOME" type="satisfies" from="REQ-CRAFT-SYNC-REPIN" to="GOAL-CRAFT-HOME" status="draft" createdBy="rqml"/>
     <edge id="E-MIT-CRAFT-SYNC-REPIN-RISK-CRAFT-DRIFT" type="mitigates" from="REQ-CRAFT-SYNC-REPIN" to="RISK-CRAFT-DRIFT" status="draft" createdBy="rqml"/>
     <edge id="E-IMPL-CRAFT-SYNC-REPIN" type="implements" from=".github/workflows/sync-craft.yml" fromKind="code" to="REQ-CRAFT-SYNC-REPIN" status="draft" createdBy="rqml"/>
+    <edge id="E-IMPL-RUNTIME-FLOOR" type="implements" from="./toolchain-floor.json" fromKind="config" fromTitle="Vendored ecosystem floor" to="REQ-CLI-RUNTIME" status="draft" createdBy="rqml"/>
+    <edge id="E-VER-RUNTIME-FLOOR" type="verifiedBy" from="REQ-CLI-RUNTIME" to="scripts/check-toolchain-floor.mjs" toKind="test" toTitle="Floor derivation guard" status="draft" createdBy="rqml"/>
   </trace>
 </rqml>
